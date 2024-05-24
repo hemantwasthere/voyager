@@ -10,6 +10,7 @@ export type TransactionColumn = {
   hash: string;
   type: string;
   block: string;
+  version: string;
   createdAt: string;
 };
 

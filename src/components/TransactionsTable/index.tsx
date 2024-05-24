@@ -11,7 +11,9 @@ const TransactionsTable: React.FC = () => {
     queryFn: getLatestBlockNumber,
   });
 
-  return <Client latestBlockNumber={data?.data.result} isPending={isPending} />;
+  if (isPending) return <div>Loading...</div>;
+
+  return <Client latestBlockNumber={data?.data.result} />;
 };
 
 export default TransactionsTable;

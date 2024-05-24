@@ -2,22 +2,24 @@ import { useQuery } from "@tanstack/react-query";
 
 import { getAllBlockTransactions } from "@/hooks/getAllBlockTransaction";
 import { timeElapsed } from "@/lib/utils";
+import LoadingSkeleton from "../LoadingSkeleton";
 import { DataTable } from "../ui/data-table";
 import { TransactionColumn, columns } from "./columns";
 
 interface ClientProps {
   latestBlockNumber: number;
-  isPending: boolean;
 }
 
-const Client: React.FC<ClientProps> = ({ latestBlockNumber, isPending }) => {
-  const { data } = useQuery({
+const Client: React.FC<ClientProps> = ({ latestBlockNumber }) => {
+  const { data, isPending } = useQuery({
     queryKey: ["all-block-transactions", latestBlockNumber],
     queryFn: async () => {
       if (!latestBlockNumber) return;
       return await getAllBlockTransactions(latestBlockNumber);
     },
   });
+
+  if (isPending) return <LoadingSkeleton />;
 
   if (!data) return null;
 
@@ -28,6 +30,7 @@ const Client: React.FC<ClientProps> = ({ latestBlockNumber, isPending }) => {
       hash: item.transaction_hash,
       type: item.type,
       block: latestBlockNumber,
+      version: item.version,
       createdAt: timeElapsed(data?.data?.result?.timestamp),
     }));
 

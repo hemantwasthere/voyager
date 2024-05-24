@@ -19,7 +19,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <main className="bg-[#121212] px-4 py-10">
+            <div className="rounded-md bg-[#1b1b1b] text-white p-8 min-h-screen w-full mx-auto max-w-7xl h-full">
+              {children}
+            </div>
+          </main>
+        </Providers>
       </body>
     </html>
   );
