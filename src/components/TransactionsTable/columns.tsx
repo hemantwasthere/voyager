@@ -1,5 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 
+import CopyIcon from "../Copy";
 import { HashCellAction } from "./CellActions/HashCellAction";
 import { StatusCellAction } from "./CellActions/StatusCellAction";
 import { TypeCellAction } from "./CellActions/TypeCellAction";
@@ -38,9 +39,20 @@ export const columns: ColumnDef<TransactionColumn>[] = [
   {
     accessorKey: "block",
     header: "BLOCK",
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <p className="cursor-pointer text-sm text-[#8BA3DF] hover:text-[#BAD8FD]">
+          {row.original.block}
+        </p>
+        <CopyIcon copyValue={row.original.block} />
+      </div>
+    ),
   },
   {
     accessorKey: "createdAt",
     header: "AGE",
+    cell: ({ row }) => (
+      <p className="text-sm text-white text-nowrap">{row.original.createdAt}</p>
+    ),
   },
 ];

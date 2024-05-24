@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import Providers from "@/providers";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+export const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,8 +20,8 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          <main className="bg-[#121212] px-4 py-10">
-            <div className="rounded-md bg-[#1b1b1b] text-white p-8 min-h-screen w-full mx-auto max-w-7xl h-full">
+          <main className="bg-[#121212] sm:px-4 py-10">
+            <div className="rounded-md bg-[#1b1b1b] text-white p-4 sm:p-8 min-h-screen w-full mx-auto max-w-7xl h-full">
               {children}
             </div>
           </main>
