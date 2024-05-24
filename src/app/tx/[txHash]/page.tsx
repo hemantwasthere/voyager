@@ -113,13 +113,15 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     <Icons.InfoIcon />
                     BLOCK NUMBER:
                   </div>
-                  <Link
-                    href={`https://voyager.online/block/${643343}`}
-                    target="_blank"
-                    className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer"
-                  >
-                    643343
-                  </Link>
+                  <div className="flex-1 w-full py-2 border-b border-b-[#383838]">
+                    <Link
+                      href={`https://voyager.online/block/${643343}`}
+                      target="_blank"
+                      className="flex-1 w-fit items-center text-sm text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer"
+                    >
+                      643343
+                    </Link>
+                  </div>
                 </div>
 
                 <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
@@ -193,13 +195,15 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     <Icons.InfoIcon />
                     SENDER ADDRESS:
                   </div>
-                  <Link
-                    href={`https://voyager.online/contract/0x043fd981c7740e48b6feda1fd42c09b2b8e50b71ff3c29acf9328884b3ba023d`}
-                    className="flex-1 flex items-center gap-1 py-2 border-b border-b-[#383838] text-sm text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer break-all "
-                  >
-                    0x07f438bc613360e100abfcb90726dbe2e22266494c487a31c208c8fcf4fdb8ee
+                  <div className="flex-1 flex items-center gap-1 w-full py-2 border-b border-b-[#383838]">
+                    <Link
+                      href={`https://voyager.online/contract/0x043fd981c7740e48b6feda1fd42c09b2b8e50b71ff3c29acf9328884b3ba023d`}
+                      className="w-fit text-sm text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer break-all "
+                    >
+                      0x07f438bc613360e100abfcb90726dbe2e22266494c487a31c208c8fcf4fdb8ee
+                    </Link>
                     <CopyIcon copyValue="0x07f438bc613360e100abfcb90726dbe2e22266494c487a31c208c8fcf4fdb8ee" />
-                  </Link>
+                  </div>
                 </div>
               </div>
             </div>
