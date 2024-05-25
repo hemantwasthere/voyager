@@ -7,6 +7,8 @@ import { Roboto } from "next/font/google";
 import Link from "next/link";
 
 import CopyIcon from "@/components/Copy";
+import EventsTable from "@/components/EventsTable";
+import { EventsColumn } from "@/components/EventsTable/columns";
 import { Icons } from "@/components/Icons";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -47,6 +49,30 @@ const Page: NextPage<PageProps> = ({ params }) => {
   // if (isPending) return <div>Loading...</div>;
 
   // if (isError) return <div>Something went wrong</div>;
+
+  // const formattedEventData: EventsColumn[] = data?.result?.events?.map((event) => ({
+  //   id: event.id,
+  //   block: event.block,
+  //   createdAt: event.timestamp,
+  // }));
+
+  const formattedEventData: EventsColumn[] = [
+    {
+      id: "0x1",
+      block: 1,
+      createdAt: "May 24 2024 18:50:03",
+    },
+    {
+      id: "0x2",
+      block: 2,
+      createdAt: "May 24 2024 18:50:03",
+    },
+    {
+      id: "0x3",
+      block: 3,
+      createdAt: "May 24 2024 18:50:03",
+    },
+  ];
 
   console.log(data?.result);
 
@@ -535,8 +561,9 @@ const Page: NextPage<PageProps> = ({ params }) => {
               </div>
             </div>
           </TabsContent>
+
           <TabsContent value="events" className="mt-8">
-            Change your password here.
+            <EventsTable data={formattedEventData} />
           </TabsContent>
         </Tabs>
       </div>

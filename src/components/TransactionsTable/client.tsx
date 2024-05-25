@@ -136,6 +136,7 @@ const Client: React.FC<ClientProps> = ({ latestBlockNumber }) => {
   return (
     <>
       <DataTable
+        isTransactionFilters
         searchKey="hash"
         columns={columns}
         data={

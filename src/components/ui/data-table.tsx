@@ -28,12 +28,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   searchKey: string;
+  isTransactionFilters?: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
+  isTransactionFilters = false,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -57,85 +59,87 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="overflow-x-auto mb-6">
-        <div className="w-fit h-[33px] flex border border-[#4B4B4B]">
-          <Button
-            onClick={() => table.getColumn("type")?.setFilterValue("")}
-            className={cn(
-              "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
-              {
-                "bg-[#4B4B4B] hover:bg-[#4B4B4B]": !table
-                  .getColumn("type")
-                  ?.getFilterValue(),
+      {isTransactionFilters && (
+        <div className="overflow-x-auto mb-6">
+          <div className="w-fit h-[33px] flex border border-[#4B4B4B]">
+            <Button
+              onClick={() => table.getColumn("type")?.setFilterValue("")}
+              className={cn(
+                "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
+                {
+                  "bg-[#4B4B4B] hover:bg-[#4B4B4B]": !table
+                    .getColumn("type")
+                    ?.getFilterValue(),
+                }
+              )}
+            >
+              All
+            </Button>
+            <Button
+              onClick={() => table.getColumn("type")?.setFilterValue("declare")}
+              className={cn(
+                "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
+                {
+                  "bg-[#4B4B4B] hover:bg-[#4B4B4B]":
+                    table.getColumn("type")?.getFilterValue() === "declare",
+                }
+              )}
+            >
+              declare
+            </Button>
+            <Button
+              onClick={() => table.getColumn("type")?.setFilterValue("deploy")}
+              className={cn(
+                "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
+                {
+                  "bg-[#4B4B4B] hover:bg-[#4B4B4B]":
+                    table.getColumn("type")?.getFilterValue() === "deploy",
+                }
+              )}
+            >
+              deploy
+            </Button>
+            <Button
+              onClick={() =>
+                table.getColumn("type")?.setFilterValue("deploy_account")
               }
-            )}
-          >
-            All
-          </Button>
-          <Button
-            onClick={() => table.getColumn("type")?.setFilterValue("declare")}
-            className={cn(
-              "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
-              {
+              className={cn(
+                "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
+                {
+                  "bg-[#4B4B4B] hover:bg-[#4B4B4B]":
+                    table.getColumn("type")?.getFilterValue() ===
+                    "deploy_account",
+                }
+              )}
+            >
+              deploy_account
+            </Button>
+            <Button
+              onClick={() => table.getColumn("type")?.setFilterValue("invoke")}
+              className={cn(
+                "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
+                {
+                  "bg-[#4B4B4B] hover:bg-[#4B4B4B]":
+                    table.getColumn("type")?.getFilterValue() === "invoke",
+                }
+              )}
+            >
+              invoke
+            </Button>
+            <Button
+              onClick={() =>
+                table.getColumn("type")?.setFilterValue("l1_handler")
+              }
+              className={cn("rounded-none hover:bg-[#383838] text-sm h-full", {
                 "bg-[#4B4B4B] hover:bg-[#4B4B4B]":
-                  table.getColumn("type")?.getFilterValue() === "declare",
-              }
-            )}
-          >
-            declare
-          </Button>
-          <Button
-            onClick={() => table.getColumn("type")?.setFilterValue("deploy")}
-            className={cn(
-              "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
-              {
-                "bg-[#4B4B4B] hover:bg-[#4B4B4B]":
-                  table.getColumn("type")?.getFilterValue() === "deploy",
-              }
-            )}
-          >
-            deploy
-          </Button>
-          <Button
-            onClick={() =>
-              table.getColumn("type")?.setFilterValue("deploy_account")
-            }
-            className={cn(
-              "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
-              {
-                "bg-[#4B4B4B] hover:bg-[#4B4B4B]":
-                  table.getColumn("type")?.getFilterValue() ===
-                  "deploy_account",
-              }
-            )}
-          >
-            deploy_account
-          </Button>
-          <Button
-            onClick={() => table.getColumn("type")?.setFilterValue("invoke")}
-            className={cn(
-              "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
-              {
-                "bg-[#4B4B4B] hover:bg-[#4B4B4B]":
-                  table.getColumn("type")?.getFilterValue() === "invoke",
-              }
-            )}
-          >
-            invoke
-          </Button>
-          <Button
-            onClick={() =>
-              table.getColumn("type")?.setFilterValue("l1_handler")
-            }
-            className={cn("rounded-none hover:bg-[#383838] text-sm h-full", {
-              "bg-[#4B4B4B] hover:bg-[#4B4B4B]":
-                table.getColumn("type")?.getFilterValue() === "l1_handler",
-            })}
-          >
-            l1_handler
-          </Button>
+                  table.getColumn("type")?.getFilterValue() === "l1_handler",
+              })}
+            >
+              l1_handler
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="border-y border-[#4B4B4B] rounded-none">
         <Table>

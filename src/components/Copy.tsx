@@ -29,7 +29,10 @@ const CopyIcon = ({
     <div className={cn(roboto.className, "relative cursor-pointer")}>
       <Copy
         onClick={handleCopy}
-        className={cn(className, "h-4 w-4 text-[#7E7E7E] hover:text-[#999898]")}
+        className={cn(
+          className,
+          "h-3.5 w-3.5 text-[#7E7E7E] hover:text-[#999898]"
+        )}
       />
       {copied && (
         <p className="absolute text-sm left-6 -top-1 px-1 bg-[#1B1B1B] text-white rounded-sm break-normal flex items-center gap-1 border border-[#4B4B4B]">

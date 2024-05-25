@@ -4,9 +4,11 @@ import { useRouter } from "next/navigation";
 
 import CopyIcon from "@/components/Copy";
 import { cn } from "@/lib/utils";
-import { CellActionProps } from "../columns";
+import { TransactionsCellActionProps } from "../columns";
 
-export const HashCellAction: React.FC<CellActionProps> = ({ data }) => {
+export const HashCellAction: React.FC<TransactionsCellActionProps> = ({
+  data,
+}) => {
   const router = useRouter();
 
   return (

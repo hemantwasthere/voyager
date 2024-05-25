@@ -15,7 +15,7 @@ export type TransactionColumn = {
   createdAt: string;
 };
 
-export interface CellActionProps {
+export interface TransactionsCellActionProps {
   data: TransactionColumn;
 }
 

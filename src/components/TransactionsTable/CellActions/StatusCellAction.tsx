@@ -1,7 +1,9 @@
 import { Icons } from "../../Icons";
-import { CellActionProps } from "../columns";
+import { TransactionsCellActionProps } from "../columns";
 
-export const StatusCellAction: React.FC<CellActionProps> = ({ data }) => {
+export const StatusCellAction: React.FC<TransactionsCellActionProps> = ({
+  data,
+}) => {
   return (
     <div>
       {data.status === "ACCEPTED_ON_L2" ? (
