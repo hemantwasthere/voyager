@@ -30,8 +30,8 @@ const CopyIcon = ({
       <Copy
         onClick={handleCopy}
         className={cn(
-          className,
-          "h-3.5 w-3.5 text-[#7E7E7E] hover:text-[#999898]"
+          "h-3.5 w-3.5 text-[#7E7E7E] hover:text-[#999898]",
+          className
         )}
       />
       {copied && (

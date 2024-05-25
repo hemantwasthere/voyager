@@ -1,5 +1,14 @@
 type IconProps = React.HTMLAttributes<SVGElement>;
 
+import {
+  Tooltip,
+  TooltipArrow,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+
 export const Icons = {
   Accepted_On_L2: (props: IconProps) => (
     <svg
@@ -94,13 +103,33 @@ export const Icons = {
       <path d="M5 13l4 4L19 7"></path>
     </svg>
   ),
-  InfoIcon: (props: React.HTMLAttributes<HTMLDivElement>) => (
-    <div
-      {...props}
-      className="w-4 h-4 border border-white rounded-full flex items-center justify-center text-[10px] cursor-pointer"
-    >
-      ?
-    </div>
+  InfoIcon: (
+    props: React.HTMLAttributes<HTMLDivElement> & {
+      tooltipValue?: string;
+      tooltipClassName?: string;
+    }
+  ) => (
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <TooltipTrigger>
+          <div
+            {...props}
+            className="w-4 h-4 border border-white rounded-full flex items-center justify-center text-[10px] cursor-pointer"
+          >
+            ?
+          </div>
+        </TooltipTrigger>
+        <TooltipContent
+          className={cn(
+            "bg-white font-normal text-black rounded-md text-[12px] p-1.5 px-2",
+            props.tooltipClassName
+          )}
+        >
+          <TooltipArrow fill="white" />
+          <p>{props.tooltipValue}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   ),
   CopyIcon: (props: IconProps) => (
     <svg

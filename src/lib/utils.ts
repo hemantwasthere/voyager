@@ -5,52 +5,46 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function timeElapsed(targetTimestamp: string) {
-  const MONTH_NAMES = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+export function timeSince(timestamp: string): string {
+  const now = Math.floor(Date.now() / 1000); // current time in seconds
+  const seconds = now - Number(timestamp);
+
+  const intervalTypes: [number, string][] = [
+    [31536000, "year"],
+    [2592000, "month"],
+    [86400, "day"],
+    [3600, "hour"],
+    [60, "minute"],
+    [1, "second"],
   ];
 
-  let currentDate = new Date();
-  let currentTimeInms = currentDate.getTime();
-  let targetDate = new Date(targetTimestamp);
-  let targetTimeInms = targetDate.getTime();
-  let elapsed = Math.floor((currentTimeInms - targetTimeInms) / 1000);
+  for (const [intervalSeconds, intervalName] of intervalTypes) {
+    const interval = Math.floor(seconds / intervalSeconds);
+    if (interval >= 1) {
+      return `${interval} ${intervalName}${interval > 1 ? "s" : ""} ago`;
+    }
+  }
 
-  if (elapsed < 1) {
-    return "0s";
-  }
-  if (elapsed < 60) {
-    //< 60 sec
-    return `${elapsed}s`;
-  }
-  if (elapsed < 3600) {
-    //< 60 minutes
-    return `${Math.floor(elapsed / 60)}m`;
-  }
-  if (elapsed < 86400) {
-    //< 24 hours
-    return `${Math.floor(elapsed / 3600)}h`;
-  }
-  if (elapsed < 604800) {
-    //<7 days
-    return `${Math.floor(elapsed / 86400)}d`;
-  }
-  if (elapsed < 2628000) {
-    //<1 month
-    return `${targetDate.getDate()} ${MONTH_NAMES[targetDate.getMonth()]}`;
-  }
-  return `${targetDate.getDate()} ${
-    MONTH_NAMES[targetDate.getMonth()]
-  } ${targetDate.getFullYear()}`; //more than a monh
+  return "just now";
+}
+
+export function formatTimestamp(timestamp: string): string {
+  const date = new Date(Number(timestamp) * 1000); // Convert Unix timestamp to milliseconds
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false, // 24-hour format
+  };
+
+  // Format the date
+  const formattedDate = date
+    .toLocaleString("en-US", options)
+    .replace(",", "")
+    .replace(",", "");
+
+  return formattedDate;
 }

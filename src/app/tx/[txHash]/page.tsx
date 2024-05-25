@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getEthPrice } from "@/hooks/getEthPrice";
 import { getTransactionData } from "@/hooks/getTransactionData";
-import { cn } from "@/lib/utils";
+import { cn, formatTimestamp, timeSince } from "@/lib/utils";
 import { useTransactionStore } from "@/store/TransactionStore";
 
 const roboto = Roboto({
@@ -46,33 +46,35 @@ const Page: NextPage<PageProps> = ({ params }) => {
     },
   });
 
-  // if (isPending) return <div>Loading...</div>;
+  if (isPending) return <div>Loading...</div>;
 
-  // if (isError) return <div>Something went wrong</div>;
+  if (isError) return <div>Something went wrong</div>;
 
-  // const formattedEventData: EventsColumn[] = data?.result?.events?.map((event) => ({
-  //   id: event.id,
-  //   block: event.block,
-  //   createdAt: event.timestamp,
-  // }));
+  const formattedEventData: EventsColumn[] = data?.result?.events?.map(
+    (event: any) => ({
+      id: event.id,
+      block: event.block,
+      createdAt: event.timestamp,
+    })
+  );
 
-  const formattedEventData: EventsColumn[] = [
-    {
-      id: "0x1",
-      block: 1,
-      createdAt: "May 24 2024 18:50:03",
-    },
-    {
-      id: "0x2",
-      block: 2,
-      createdAt: "May 24 2024 18:50:03",
-    },
-    {
-      id: "0x3",
-      block: 3,
-      createdAt: "May 24 2024 18:50:03",
-    },
-  ];
+  // const formattedEventData: EventsColumn[] = [
+  //   {
+  //     id: "0x1",
+  //     block: 1,
+  //     createdAt: formatTimestamp("1637091683"),
+  //   },
+  //   {
+  //     id: "0x2",
+  //     block: 2,
+  //     createdAt: formatTimestamp("1637091683"),
+  //   },
+  //   {
+  //     id: "0x3",
+  //     block: 3,
+  //     createdAt: formatTimestamp("1637091683"),
+  //   },
+  // ];
 
   console.log(data?.result);
 
@@ -83,26 +85,28 @@ const Page: NextPage<PageProps> = ({ params }) => {
       </h1>
 
       <Label className="text-[#cacaca] text-[12px]">HASH</Label>
-      <p className="mt-4 text-base font-light text-white leading-[1.4] break-all">
+      <p className="mt-4 text-base font-light text-white leading-[1.4] break-all flex items-center gap-2">
         {params.txHash}
+        <CopyIcon copyValue={params.txHash} className="w-5 h-5" />
       </p>
 
       <div className="flex mt-6">
-        <div className="w-1/2 flex flex-col gap-4">
+        <div className="w-1/2 md:w-1/4 flex flex-col gap-4 md:gap-1">
           <p className="text-[12px] text-[#cacaca] flex items-center gap-1">
-            TYPE <Icons.InfoIcon />
+            TYPE <Icons.InfoIcon tooltipValue="Transaction type" />
           </p>
-          <div className="text-sm font-[300] py-0.5 px-[10px] border border-[#2E4C3C] bg-[#202E26] text-[#83F3BB] rounded-sm w-fit">
+          <div className="text-[12px] font-[300] py-0.5 px-[10px] border border-[#2E4C3C] bg-[#202E26] text-[#83F3BB] rounded-sm w-fit">
             {data?.result?.type}
           </div>
         </div>
 
-        <div className="w-1/2 flex flex-col gap-4">
+        <div className="w-1/2 md:w-1/4 flex flex-col gap-4 md:gap-1">
           <p className="text-[12px] text-[#cacaca]">TIMESTAMP</p>
-          <p className="text-sm text-white flex gap-3 items-center">
-            {/* {format(data?.data?.result?.timestamp, "yyyy-MM-dd HH:mm:ss")} */}
-            May 24 2024
-            <span className="text-[12px] text-[#cacaca]">18:50:03</span>
+          <p className="text-base text-white flex gap-1.5 items-center">
+            {formatTimestamp(timestamp).slice(0, 11)}
+            <span className="text-[12px] text-[#cacaca]">
+              {formatTimestamp(timestamp).slice(11)}
+            </span>
           </p>
         </div>
       </div>
@@ -144,7 +148,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
             >
               Events
               <span className="bg-[#121212] text-[#AAAAAA] w-6 h-6 rounded-full text-[12px] flex items-center justify-center">
-                {/* {data?.result?.events?.length} */}3
+                {data?.result?.events?.length}
               </span>
             </TabsTrigger>
           </TabsList>
@@ -158,7 +162,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
               <div className="text-[12px] flex gap-4 md:gap-0 flex-col items-start">
                 <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
                   <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
-                    <Icons.InfoIcon />
+                    <Icons.InfoIcon tooltipValue="Unique number of the block in which the transaction is processed" />
                     BLOCK NUMBER:
                   </div>
                   <div className="flex-1 w-full py-2 border-b border-b-[#383838]">
@@ -174,17 +178,17 @@ const Page: NextPage<PageProps> = ({ params }) => {
 
                 <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
                   <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
-                    <Icons.InfoIcon />
+                    <Icons.InfoIcon tooltipValue="Time at which the transaction was processed" />
                     TIMESTAMP:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm  text-white">
-                    3 hours ago ( May 24 2024 18:50:03 )
+                    {timeSince(timestamp)} ( {formatTimestamp(timestamp)} )
                   </div>
                 </div>
 
                 <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
                   <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
-                    <Icons.InfoIcon />
+                    <Icons.InfoIcon tooltipValue="Actual fee paid for executing the transaction" />
                     ACTUAL FEE:
                   </div>
                   <div className="flex-1 flex flex-col md:flex-row gap-2 md:items-center py-2 border-b border-b-[#383838] text-sm">
@@ -221,7 +225,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
 
                 <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
                   <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
-                    <Icons.InfoIcon />
+                    <Icons.InfoIcon tooltipValue="Max fee set when submitting the transaction" />
                     MAX FEE:
                   </div>
                   <div className="flex-1 flex gap-2 flex-col md:flex-row md:items-center py-2 border-b border-b-[#383838] text-sm">
@@ -239,7 +243,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
 
                 <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
                   <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
-                    <Icons.InfoIcon />
+                    <Icons.InfoIcon tooltipValue="Gas consumed for the transaction execution" />
                     GAS CONSUMED:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm">
@@ -252,7 +256,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
 
                 <div className="flex md:items-center gap-2 flex-col md:flex-row h-full md:h-[37px] w-full">
                   <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
-                    <Icons.InfoIcon />
+                    <Icons.InfoIcon tooltipValue="Sending party of the transaction" />
                     SENDER ADDRESS:
                   </div>
                   <div className="flex-1 flex items-center gap-1 w-full py-2 border-b border-b-[#383838]">
@@ -276,7 +280,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
               <div className="text-[12px] flex gap-4 md:gap-0 flex-col items-start">
                 <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
                   <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
-                    <Icons.InfoIcon />
+                    <Icons.InfoIcon tooltipValue="Unix timestamp at which the transaction was processed" />
                     UNIX TIMESTAMP:
                   </div>
                   <div className="flex-1 flex items-center gap-3 py-2 border-b border-b-[#383838] text-sm">
@@ -287,7 +291,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
 
                 <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
                   <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
-                    <Icons.InfoIcon />
+                    <Icons.InfoIcon tooltipValue="Nonce of the transaction" />
                     NONCE:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm">
@@ -297,7 +301,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
 
                 <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
                   <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
-                    <Icons.InfoIcon />
+                    <Icons.InfoIcon tooltipValue="Index of the transaction within the block" />
                     POSITION:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm">
@@ -307,7 +311,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
 
                 <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
                   <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
-                    <Icons.InfoIcon />
+                    <Icons.InfoIcon tooltipValue="Version of the transaction" />
                     VERSION:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm">
@@ -317,7 +321,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
 
                 <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-full w-full">
                   <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
-                    <Icons.InfoIcon />
+                    <Icons.InfoIcon tooltipValue="Resources utilized to execute the transaction" />
                     EXECUTION RESOURCES:
                   </div>
                   <div className="flex-1 items-center py-1 border-b border-b-[#383838] text-sm">
@@ -352,7 +356,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
 
                 <div className="flex md:items-start gap-2 flex-col md:flex-row md:h-full w-full md:mt-3">
                   <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5 mt-1">
-                    <Icons.InfoIcon />
+                    <Icons.InfoIcon tooltipValue="Calldata that was sent in the transaction" />
                     CALLDATA:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] h-full">
@@ -542,7 +546,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
 
                 <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
                   <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
-                    <Icons.InfoIcon />
+                    <Icons.InfoIcon tooltipValue="Signature(s) of the transaction" />
                     SIGNATURE(S):
                   </div>
                   <div className="flex-1 flex items-center gap-1 md:gap-0 justify-between py-2 border-b border-b-[#383838] text-sm text-[#F5AB35] break-all hover:bg-[#383838] px-2">
