@@ -26,9 +26,9 @@ const Page: NextPage<PageProps> = ({ params }) => {
     },
   });
 
-  // if (isPending) return <div>Loading...</div>;
+  if (isPending) return <div>Loading...</div>;
 
-  // if (isError) return <div>Something went wrong</div>;
+  if (isError) return <div>Something went wrong</div>;
 
   return (
     <>
@@ -47,8 +47,8 @@ const Page: NextPage<PageProps> = ({ params }) => {
             TYPE <Icons.InfoIcon />
           </p>
           <div className="text-sm font-[300] py-0.5 px-[10px] border border-[#2E4C3C] bg-[#202E26] text-[#83F3BB] rounded-sm w-fit">
-            {/* {data?.data?.result?.type} */}
-            INVOKE
+            {data?.data?.result?.type}
+            {/* INVOKE */}
           </div>
         </div>
 

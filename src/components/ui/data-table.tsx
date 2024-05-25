@@ -166,11 +166,12 @@ export function DataTable<TData, TValue>({
 
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map((row, i) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className="border-[#4B4B4B] hover:bg-[#4B4B4B]"
+                  // ref={flatData.length === i + 1 ? lastElement : null}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

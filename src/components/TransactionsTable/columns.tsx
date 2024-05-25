@@ -10,7 +10,7 @@ export type TransactionColumn = {
   status: string;
   hash: string;
   type: string;
-  block: string;
+  block: number;
   version: string;
   createdAt: string;
 };
@@ -44,7 +44,7 @@ export const columns: ColumnDef<TransactionColumn>[] = [
         <p className="cursor-pointer text-sm text-[#8BA3DF] hover:text-[#BAD8FD]">
           {row.original.block}
         </p>
-        <CopyIcon copyValue={row.original.block} />
+        <CopyIcon copyValue={row.original.block.toString()} />
       </div>
     ),
   },
