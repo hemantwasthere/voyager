@@ -1,9 +1,9 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import CopyIcon from "../Copy";
-import { HashCellAction } from "./CellActions/HashCellAction";
-import { StatusCellAction } from "./CellActions/StatusCellAction";
-import { TypeCellAction } from "./CellActions/TypeCellAction";
+import { HashCell } from "./Cells/HashCell";
+import { StatusCell } from "./Cells/StatusCell";
+import { TypeCell } from "./Cells/TypeCell";
 
 export type TransactionColumn = {
   id: string;
@@ -23,18 +23,18 @@ export const columns: ColumnDef<TransactionColumn>[] = [
   {
     accessorKey: "status",
     header: "STATUS",
-    cell: ({ row }) => <StatusCellAction data={row.original} />,
+    cell: ({ row }) => <StatusCell data={row.original} />,
   },
   {
     id: "hash",
     accessorKey: "hash",
     header: "HASH",
-    cell: ({ row }) => <HashCellAction data={row.original} />,
+    cell: ({ row }) => <HashCell data={row.original} />,
   },
   {
     accessorKey: "type",
     header: "TYPE",
-    cell: ({ row }) => <TypeCellAction data={row.original} />,
+    cell: ({ row }) => <TypeCell data={row.original} />,
   },
   {
     accessorKey: "block",

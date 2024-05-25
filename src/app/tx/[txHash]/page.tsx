@@ -7,6 +7,7 @@ import { Roboto } from "next/font/google";
 import Link from "next/link";
 
 import CopyIcon from "@/components/Copy";
+import CustomTooltip from "@/components/CustomTooltip";
 import EventsTable from "@/components/EventsTable";
 import { EventsColumn } from "@/components/EventsTable/columns";
 import { Icons } from "@/components/Icons";
@@ -46,37 +47,40 @@ const Page: NextPage<PageProps> = ({ params }) => {
     },
   });
 
-  if (isPending) return <div>Loading...</div>;
+  // if (isPending) return <div>Loading...</div>;
 
-  if (isError) return <div>Something went wrong</div>;
+  // if (isError) return <div>Something went wrong</div>;
 
-  const formattedEventData: EventsColumn[] = data?.result?.events?.map(
-    (event: any) => ({
-      id: event.id,
-      block: event.block,
-      createdAt: event.timestamp,
-    })
-  );
+  // const formattedEventData: EventsColumn[] = data?.result?.events?.map(
+  //   (event: any) => ({
+  //     id: event.id,
+  //     block: event.block,
+  //     createdAt: event.timestamp,
+  //   })
+  // );
 
-  // const formattedEventData: EventsColumn[] = [
-  //   {
-  //     id: "0x1",
-  //     block: 1,
-  //     createdAt: formatTimestamp("1637091683"),
-  //   },
-  //   {
-  //     id: "0x2",
-  //     block: 2,
-  //     createdAt: formatTimestamp("1637091683"),
-  //   },
-  //   {
-  //     id: "0x3",
-  //     block: 3,
-  //     createdAt: formatTimestamp("1637091683"),
-  //   },
-  // ];
-
-  console.log(data?.result);
+  const formattedEventData: EventsColumn[] = [
+    {
+      id: "622371_21_3",
+      block: 622371,
+      createdAt: timeSince("1637069048"),
+    },
+    {
+      id: "622371_21_2",
+      block: 622371,
+      createdAt: timeSince("1637069048"),
+    },
+    {
+      id: "622371_21_1",
+      block: 622371,
+      createdAt: timeSince("1637069048"),
+    },
+    {
+      id: "622371_21_0",
+      block: 622371,
+      createdAt: timeSince("1637069048"),
+    },
+  ];
 
   return (
     <>
@@ -96,7 +100,8 @@ const Page: NextPage<PageProps> = ({ params }) => {
             TYPE <Icons.InfoIcon tooltipValue="Transaction type" />
           </p>
           <div className="text-[12px] font-[300] py-0.5 px-[10px] border border-[#2E4C3C] bg-[#202E26] text-[#83F3BB] rounded-sm w-fit">
-            {data?.result?.type}
+            {/* {data?.result?.type} */}
+            INVOKE
           </div>
         </div>
 
@@ -148,7 +153,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
             >
               Events
               <span className="bg-[#121212] text-[#AAAAAA] w-6 h-6 rounded-full text-[12px] flex items-center justify-center">
-                {data?.result?.events?.length}
+                {/* {data?.result?.events?.length} */}4
               </span>
             </TabsTrigger>
           </TabsList>
@@ -166,13 +171,17 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     BLOCK NUMBER:
                   </div>
                   <div className="flex-1 w-full py-2 border-b border-b-[#383838]">
-                    <Link
-                      href={`https://voyager.online/block/${data?.result?.block_number}`}
-                      target="_blank"
-                      className="flex-1 w-fit items-center text-sm text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer"
-                    >
-                      {data?.result?.block_number}
-                    </Link>
+                    <CustomTooltip tooltipValue="622371">
+                      <Link
+                        // href={`https://voyager.online/block/${data?.result?.block_number}`}
+                        href={`https://voyager.online/block/622371`}
+                        target="_blank"
+                        className="flex-1 w-fit items-center text-sm text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer"
+                      >
+                        {/* {data?.result?.block_number} */}
+                        622371
+                      </Link>
+                    </CustomTooltip>
                   </div>
                 </div>
 
@@ -193,31 +202,37 @@ const Page: NextPage<PageProps> = ({ params }) => {
                   </div>
                   <div className="flex-1 flex flex-col md:flex-row gap-2 md:items-center py-2 border-b border-b-[#383838] text-sm">
                     <span>
-                      {Number(data?.result?.actual_fee?.amount) /
-                        Number(1000000000000000000)}
+                      {/* {Number(data?.result?.actual_fee?.amount) /
+                        Number(1000000000000000000)} */}
+                      0.000004158559950908
                     </span>{" "}
-                    <Link
-                      href="https://voyager.online/token/0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7"
-                      className="text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer"
-                    >
-                      ETH
-                    </Link>
+                    <CustomTooltip tooltipValue="Ether">
+                      <Link
+                        href="https://voyager.online/token/0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7"
+                        className="text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer"
+                      >
+                        ETH
+                      </Link>
+                    </CustomTooltip>
                     <CopyIcon copyValue="0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7" />
-                    {!ethPrice?.price
+                    {/* {!ethPrice?.price
                       ? "..."
                       : `($${(
                           ethPrice?.price *
                           (Number(data?.result?.actual_fee?.amount) /
                             Number(1000000000000000000))
-                        ).toFixed(6)})`}
+                        ).toFixed(6)})`} */}
+                    ($0.015512)
                     <div className="flex items-center gap-0.5">
                       to:
-                      <Link
-                        href="https://voyager.online/contract/0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8"
-                        className="text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer mr-1"
-                      >
-                        StarkWare: Sequencer
-                      </Link>
+                      <CustomTooltip tooltipValue="0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8">
+                        <Link
+                          href="https://voyager.online/contract/0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8"
+                          className="text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer mr-1"
+                        >
+                          StarkWare: Sequencer
+                        </Link>
+                      </CustomTooltip>
                       <CopyIcon copyValue="0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8" />
                     </div>
                   </div>
@@ -229,13 +244,15 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     MAX FEE:
                   </div>
                   <div className="flex-1 flex gap-2 flex-col md:flex-row md:items-center py-2 border-b border-b-[#383838] text-sm">
-                    <span>0.000002315296879761</span>{" "}
-                    <Link
-                      href={`https://voyager.online/token/0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7`}
-                      className="text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer"
-                    >
-                      ETH
-                    </Link>
+                    <span>0.000006189588617602</span>{" "}
+                    <CustomTooltip tooltipValue="Ether">
+                      <Link
+                        href={`https://voyager.online/token/0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7`}
+                        className="text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer"
+                      >
+                        ETH
+                      </Link>
+                    </CustomTooltip>
                     <CopyIcon copyValue="0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7" />
                     ($0.008626)
                   </div>
@@ -247,10 +264,11 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     GAS CONSUMED:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm">
-                    {
+                    {/* {
                       data?.result?.execution_resources?.data_availability
                         ?.l1_data_gas
-                    }
+                    } */}
+                    166
                   </div>
                 </div>
 
@@ -260,12 +278,14 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     SENDER ADDRESS:
                   </div>
                   <div className="flex-1 flex items-center gap-1 w-full py-2 border-b border-b-[#383838]">
-                    <Link
-                      href={`https://voyager.online/contract/0x043fd981c7740e48b6feda1fd42c09b2b8e50b71ff3c29acf9328884b3ba023d`}
-                      className="w-fit text-sm text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer break-all "
-                    >
-                      0x07f438bc613360e100abfcb90726dbe2e22266494c487a31c208c8fcf4fdb8ee
-                    </Link>
+                    <CustomTooltip tooltipValue="0x0039a73ab43012ff25cf715a462b6061f211088625a71e2a8d819ba260eca700">
+                      <Link
+                        href={`https://voyager.online/contract/0x0039a73ab43012ff25cf715a462b6061f211088625a71e2a8d819ba260eca700`}
+                        className="w-fit text-sm text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer break-all"
+                      >
+                        0x0039a73ab43012ff25cf715a462b6061f211088625a71e2a8d819ba260eca700
+                      </Link>
+                    </CustomTooltip>
                     <CopyIcon copyValue="0x07f438bc613360e100abfcb90726dbe2e22266494c487a31c208c8fcf4fdb8ee" />
                   </div>
                 </div>
@@ -284,8 +304,9 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     UNIX TIMESTAMP:
                   </div>
                   <div className="flex-1 flex items-center gap-3 py-2 border-b border-b-[#383838] text-sm">
-                    {timestamp}
-                    <CopyIcon copyValue={timestamp} />
+                    {/* {timestamp} */}
+                    1637069048
+                    <CopyIcon copyValue="1637069048" />
                   </div>
                 </div>
 
@@ -295,7 +316,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     NONCE:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm">
-                    -
+                    36
                   </div>
                 </div>
 
@@ -305,7 +326,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     POSITION:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm">
-                    154
+                    21
                   </div>
                 </div>
 
@@ -315,7 +336,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     VERSION:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm">
-                    3
+                    1
                   </div>
                 </div>
 
@@ -326,29 +347,30 @@ const Page: NextPage<PageProps> = ({ params }) => {
                   </div>
                   <div className="flex-1 items-center py-1 border-b border-b-[#383838] text-sm">
                     <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#2E4C3C] bg-[#202E26] text-[#83F3BB] rounded-sm w-fit">
-                      {data?.result?.execution_resources?.steps} STEPS
+                      {/* {data?.result?.execution_resources?.steps} STEPS */}
+                      65550 STEPS
                     </div>
                     <div className="flex items-center flex-wrap gap-3 mt-1">
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {
+                        {/* {
                           data?.result?.execution_resources
                             ?.pedersen_builtin_applications
-                        }{" "}
-                        PEDERSEN_BUILTIN{" "}
+                        }{" "} */}
+                        68 PEDERSEN_BUILTIN{" "}
                       </div>
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {
+                        {/* {
                           data?.result?.execution_resources
                             ?.range_check_builtin_applications
-                        }{" "}
-                        RANGE_CHECK_BUILTIN
+                        }{" "} */}
+                        2388 RANGE_CHECK_BUILTIN
                       </div>
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {
+                        {/* {
                           data?.result?.execution_resources
                             ?.ec_op_builtin_applications
-                        }{" "}
-                        EC_OP_BUILTIN
+                        }{" "} */}
+                        3 EC_OP_BUILTIN
                       </div>
                     </div>
                   </div>
@@ -401,12 +423,14 @@ const Page: NextPage<PageProps> = ({ params }) => {
                           <div className="mt-5 flex items-center gap-2 text-sm">
                             Address:
                             <div className="flex items-center gap-0.5">
-                              <Link
-                                href="https://voyager.online/contract/0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8"
-                                className="text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer mr-0.5"
-                              >
-                                StarkGate: ETH Token
-                              </Link>
+                              <CustomTooltip tooltipValue="0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8">
+                                <Link
+                                  href="https://voyager.online/contract/0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8"
+                                  className="text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer mr-0.5"
+                                >
+                                  StarkGate: ETH Token
+                                </Link>
+                              </CustomTooltip>
                               <CopyIcon copyValue="0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8" />
                             </div>
                           </div>
@@ -481,12 +505,14 @@ const Page: NextPage<PageProps> = ({ params }) => {
                           <div className="mt-5 flex items-center gap-2 text-sm">
                             Address:
                             <div className="flex items-center gap-0.5">
-                              <Link
-                                href="https://voyager.online/contract/0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8"
-                                className="text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer mr-0.5"
-                              >
-                                Argent
-                              </Link>
+                              <CustomTooltip tooltipValue="0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8">
+                                <Link
+                                  href="https://voyager.online/contract/0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8"
+                                  className="text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer mr-0.5"
+                                >
+                                  Argent
+                                </Link>
+                              </CustomTooltip>
                               <CopyIcon copyValue="0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8" />
                             </div>
                           </div>
@@ -550,16 +576,16 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     SIGNATURE(S):
                   </div>
                   <div className="flex-1 flex items-center gap-1 md:gap-0 justify-between py-2 border-b border-b-[#383838] text-sm text-[#F5AB35] break-all hover:bg-[#383838] px-2">
-                    0x4ecb9e28b81f6601dae53de21b9f247cc5eb060e580defe8ad8ce59e2d2020d
-                    <CopyIcon copyValue="0x4ecb9e28b81f6601dae53de21b9f247cc5eb060e580defe8ad8ce59e2d2020d" />
+                    0x48865bdad03000a448cf96ea4029f34d85c9691365c8db0a25773d7e1cdf35d
+                    <CopyIcon copyValue="0x48865bdad03000a448cf96ea4029f34d85c9691365c8db0a25773d7e1cdf35d" />
                   </div>
                 </div>
 
                 <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
                   <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5" />
                   <div className="flex-1 flex items-center gap-1 md:gap-0 justify-between py-2 border-b border-b-[#383838] text-sm text-[#F5AB35] break-all hover:bg-[#383838] px-2">
-                    0x4ecb9e28b81f6601dae53de21b9f247cc5eb060e580defe8ad8ce59e2d2020d
-                    <CopyIcon copyValue="0x4ecb9e28b81f6601dae53de21b9f247cc5eb060e580defe8ad8ce59e2d2020d" />
+                    0x5651b313ca7731c8540c6742dc0bfb816af1f98845b936d4687fb99e52c2f3f
+                    <CopyIcon copyValue="0x5651b313ca7731c8540c6742dc0bfb816af1f98845b936d4687fb99e52c2f3f" />
                   </div>
                 </div>
               </div>

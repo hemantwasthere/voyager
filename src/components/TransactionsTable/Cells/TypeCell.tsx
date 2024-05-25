@@ -1,9 +1,7 @@
 import { Icons } from "../../Icons";
 import { TransactionsCellActionProps } from "../columns";
 
-export const TypeCellAction: React.FC<TransactionsCellActionProps> = ({
-  data,
-}) => {
+export const TypeCell: React.FC<TransactionsCellActionProps> = ({ data }) => {
   if (data.type === "INVOKE") {
     return (
       <div className="text-sm font-[300] py-0.5 px-[10px] border border-[#2E4C3C] bg-[#202E26] text-[#83F3BB] rounded-sm w-fit">

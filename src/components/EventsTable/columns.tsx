@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 
-import BlockCellAction from "./CellActions/BlockCellAction";
-import IdCellAction from "./CellActions/IdCellAction";
+import BlockCellAction from "./Cells/BlockCell";
+import IdCellAction from "./Cells/IdCell";
 
 export type EventsColumn = {
   id: string;

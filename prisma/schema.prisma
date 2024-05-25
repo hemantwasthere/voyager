@@ -12,3 +12,87 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model AllBlocks {
+  id String @id @default(cuid())
+
+  blocks Block[]
+}
+
+model Block {
+  id String @id @default(cuid())
+
+  blockNumber Int
+  timestamp   String
+
+  allTransactionsId String
+  allTransactions   AllTransactions @relation(fields: [allTransactionsId], references: [id])
+
+  allBlocksId String?
+  allBlocks   AllBlocks? @relation(fields: [allBlocksId], references: [id])
+}
+
+model AllTransactions {
+  id String @id @default(cuid())
+
+  transactions Transaction[]
+  block        Block[]
+}
+
+model Transaction {
+  id String @id @default(cuid())
+
+  txHash    String
+  txType    String
+  timestamp String
+
+  transactionDetailsId String
+  transactionDetails   TransactionDetails @relation(fields: [transactionDetailsId], references: [id])
+
+  developerInfoId String
+  developerInfo   DeveloperInfo @relation(fields: [developerInfoId], references: [id])
+
+  events Event[]
+
+  blockId           String?
+  AllTransactions   AllTransactions? @relation(fields: [allTransactionsId], references: [id])
+  allTransactionsId String?
+}
+
+model TransactionDetails {
+  id String @id @default(cuid())
+
+  blockNumber   Int
+  timestamp     String
+  actualFee     String
+  maxFee        String
+  gasConsumed   String
+  senderAddress String
+
+  transaction Transaction[]
+}
+
+model DeveloperInfo {
+  id String @id @default(cuid())
+
+  unixTimestamp      String
+  nonce              String
+  position           Int
+  version            String
+  executionResources String[]
+  calldata           String
+  signatures         String[]
+
+  transaction Transaction[]
+}
+
+model Event {
+  id String @id @default(cuid())
+
+  ID    String
+  block Int
+  age   String
+
+  transactionId String?
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+}
