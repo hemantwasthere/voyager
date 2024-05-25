@@ -1,7 +1,11 @@
 import axios from "axios";
 
-export const getTransactionData = async (txHash: string[]) => {
-  return await axios.post(
+export const getTransactionData = async (
+  txHash: string[]
+): Promise<{
+  result: any;
+}> => {
+  const data = await axios.post(
     "https://free-rpc.nethermind.io/mainnet-juno",
     {
       jsonrpc: "2.0",
@@ -15,4 +19,10 @@ export const getTransactionData = async (txHash: string[]) => {
       },
     }
   );
+
+  return new Promise((resolve) => {
+    resolve({
+      result: data?.data?.result,
+    });
+  });
 };

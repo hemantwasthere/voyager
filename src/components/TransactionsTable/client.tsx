@@ -4,6 +4,7 @@ import { useInView } from "react-intersection-observer";
 
 import { getAllBlockTransactions } from "@/hooks/getAllBlockTransaction";
 import { timeElapsed } from "@/lib/utils";
+import { useTransactionStore } from "@/store/TransactionStore";
 import LoadingSkeleton from "../LoadingSkeleton";
 import { DataTable } from "../ui/data-table";
 import { TransactionColumn, columns } from "./columns";
@@ -13,6 +14,8 @@ interface ClientProps {
 }
 
 const Client: React.FC<ClientProps> = ({ latestBlockNumber }) => {
+  const [setTimestamp] = useTransactionStore((state) => [state.setTimestamp]);
+
   const { ref, inView } = useInView();
 
   const { data, isPending, isError, isFetchingNextPage, fetchNextPage } =
@@ -28,7 +31,10 @@ const Client: React.FC<ClientProps> = ({ latestBlockNumber }) => {
     if (inView) {
       fetchNextPage();
     }
-  }, [fetchNextPage, inView]);
+    if (data) {
+      setTimestamp(data?.pages[0].timestamp);
+    }
+  }, [fetchNextPage, inView, data]);
 
   if (isPending) return <LoadingSkeleton />;
 
