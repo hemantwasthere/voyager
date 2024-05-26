@@ -6,6 +6,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { roboto } from "./ui/data-table";
 
 interface CustomTooltipProps {
   tooltipValue: string;
@@ -24,6 +25,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
         <TooltipTrigger asChild>{children}</TooltipTrigger>
         <TooltipContent
           className={cn(
+            roboto.className,
             "bg-white font-normal text-black rounded-md px-2 text-xs py-1 bg-white/90",
             tooltipClassName
           )}

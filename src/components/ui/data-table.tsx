@@ -11,6 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { Roboto_Mono } from "next/font/google";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+
+export const roboto = Roboto_Mono({
+  weight: "400",
+  subsets: ["latin"],
+});
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -157,7 +163,12 @@ export function DataTable<TData, TValue>({
         </div>
       )}
 
-      <div className="border-y border-[#4B4B4B] rounded-none">
+      <div
+        className={cn(
+          roboto.className,
+          "border-y border-[#4B4B4B] rounded-none"
+        )}
+      >
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Check, Loader2 } from "lucide-react";
 import { NextPage } from "next";
-import { Roboto } from "next/font/google";
+import { Roboto_Mono } from "next/font/google";
 import Link from "next/link";
 
 import CopyIcon from "@/components/Copy";
@@ -19,8 +19,7 @@ import { cn, formatTimestamp, timeSince } from "@/lib/utils";
 import { getTransactionDataFromHash } from "@/server-actions";
 import { Transaction } from "@prisma/client";
 
-const roboto = Roboto({
-  weight: "400",
+const roboto = Roboto_Mono({
   subsets: ["latin"],
 });
 
@@ -94,7 +93,9 @@ const Page: NextPage<PageProps> = ({ params }) => {
 
   const formattedEventData: EventsColumn[] = data?.result?.events?.map(
     (event: any, index: any) => ({
-      id: `${transactionDataFromDb?.result?.transactionDetails?.blockNumber}_${transactionDataFromDb?.result?.developerInfo?.position}_${index}`,
+      id: `${transactionDataFromDb?.result?.transactionDetails?.blockNumber}_${
+        transactionDataFromDb?.result?.developerInfo?.position
+      }_${data?.result?.events?.length - index - 1}`,
       block: transactionDataFromDb?.result?.transactionDetails?.blockNumber,
       createdAt: timeSince(
         transactionDataFromDb?.result?.transactionDetails?.timestamp!

@@ -1,12 +1,12 @@
 "use client";
 
 import { Copy } from "lucide-react";
-import { Roboto } from "next/font/google";
+import { Roboto_Mono } from "next/font/google";
 import { useState } from "react";
 
 import { cn } from "@/lib/utils";
 
-const roboto = Roboto({ weight: "400", subsets: ["latin"] });
+const roboto = Roboto_Mono({ subsets: ["latin"] });
 
 const CopyIcon = ({
   className,
