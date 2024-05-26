@@ -93,10 +93,12 @@ const Page: NextPage<PageProps> = ({ params }) => {
   }
 
   const formattedEventData: EventsColumn[] = data?.result?.events?.map(
-    (event: any) => ({
-      id: event?.id ?? "id",
+    (event: any, index: any) => ({
+      id: `${transactionDataFromDb?.result?.transactionDetails?.blockNumber}_${transactionDataFromDb?.result?.developerInfo?.position}_${index}`,
       block: transactionDataFromDb?.result?.transactionDetails?.blockNumber,
-      createdAt: event?.timestamp ?? "timestamp",
+      createdAt: timeSince(
+        transactionDataFromDb?.result?.transactionDetails?.timestamp!
+      ),
     })
   );
 
