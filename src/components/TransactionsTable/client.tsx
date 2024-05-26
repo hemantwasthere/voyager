@@ -1,4 +1,4 @@
-import { Transaction } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -11,7 +11,11 @@ import LoadingSkeleton from "../LoadingSkeleton";
 import { DataTable } from "../ui/data-table";
 import { TransactionColumn, columns } from "./columns";
 
-const Client: React.FC = () => {
+interface ClientProps {
+  blockNumber: number;
+}
+
+const Client: React.FC<ClientProps> = ({ blockNumber }) => {
   const [isFilterApplied, setIsFilterApplied] = useState(false);
 
   const { ref, inView } = useInView();
@@ -25,7 +29,8 @@ const Client: React.FC = () => {
     hasNextPage,
   } = useInfiniteQuery({
     queryKey: ["get-transactions-from-db"],
-    queryFn: ({ pageParam }) => fetchAllTransactions(pageParam as number),
+    queryFn: ({ pageParam }) =>
+      fetchAllTransactions(blockNumber, pageParam as number),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextPage,
     retry: true,
@@ -44,14 +49,14 @@ const Client: React.FC = () => {
 
   const transactions: TransactionColumn[][] = allTransactions?.pages?.map(
     (page) => {
-      return page.transactions.map((txn: Transaction) => ({
+      return page.transactions.map((txn: Prisma.TransactionCreateInput) => ({
         id: txn.txHash!,
         status: DEMO_DATA.status!,
         hash: txn.txHash!,
         type: txn.txType!,
-        block: txn.transactionDetails?.blockNumber!,
-        version: txn.developerInfo?.version!,
-        createdAt: timeSince(Number(txn.transactionDetails?.timestamp)),
+        block: txn.blockNumber!,
+        version: txn.version!,
+        createdAt: timeSince(Number(txn?.timestamp)),
       }));
     }
   )!;

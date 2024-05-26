@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -13,79 +13,57 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model AllBlocks {
-  id     String  @id @default(auto()) @map("_id") @db.ObjectId
-  blocks Block[]
+model Block {
+  id                  String        @id @default(cuid())
+  blockHash           String?       @unique
+  blockNumber         Int?          @unique
+  l1DaMode            String?
+  l1DataGasPriceInFri String?
+  l1DataGasPriceInWei String?
+  l1GasPriceInFri     String?
+  l1GasPriceInWei     String?
+  newRoot             String?
+  parentHash          String?
+  sequencerAddress    String?
+  starknetVersion     String?
+  status              String?
+  timestamp           Int?
+  transactions        Transaction[]
 }
 
-type Block {
-  blockHash        String?
-  blockNumber      Int?
-  l1DaMode         String?
-  l1DataGasPrice   GasPrice?
-  l1GasPrice       GasPrice?
-  newRoot          String?
-  parentHash       String?
-  sequencerAddress String?
-  starknetVersion  String?
-  status           String?
-
-  timestamp       Int?
-  allTransactions Transaction[]
-}
-
-type GasPrice {
-  priceInFri String?
-  priceInWei String?
-}
-
-type Transaction {
-  calldata                  String[]
+model Transaction {
+  id                        String   @id @default(cuid())
   feeDataAvailabilityMode   String?
   nonce                     String?
   nonceDataAvailabilityMode String?
-  resourceBounds            ResourceBounds?
-  signatures                String[]
+  l1GasMaxAmount            String?
+  l1GasMaxPricePerUnit      String?
+  l2GasMaxAmount            String?
+  l2GasMaxPricePerUnit      String?
+  senderAddress             String?
   tip                       String?
-  txHash                    String?
+  txHash                    String?  @unique
   txType                    String?
-  transactionDetails        TransactionDetails?
-  developerInfo             DeveloperInfo?
+  blockNumber               Int?
+  timestamp                 Int?
+  actualFee                 String?
+  maxFee                    String?
+  gasConsumed               String?
+  unixTimestamp             Int?
+  position                  Int?
+  version                   String?
+  executionResources        String[]
+  calldata                  String[]
+  signatures                String[]
   events                    Event[]
+  Block                     Block?   @relation(fields: [blockId], references: [id])
+  blockId                   String?
 }
 
-type ResourceBounds {
-  l1Gas         Gas?
-  l2Gas         Gas?
-  senderAddress String?
-}
-
-type Gas {
-  maxAmount       String?
-  maxPricePerUnit String?
-}
-
-type TransactionDetails {
-  blockNumber   Int
-  timestamp     Int
-  actualFee     String
-  maxFee        String
-  gasConsumed   String
-  senderAddress String
-}
-
-type DeveloperInfo {
-  unixTimestamp      Int
-  nonce              String
-  position           Int
-  version            String
-  executionResources String[]
-  calldata           String[]
-  signatures         String[]
-}
-
-type Event {
-  ID    String?
-  block Int?
-  age   Int?
+model Event {
+  id          String      @id @default(cuid())
+  ID          String?
+  block       Int?
+  age         Int?
+  Transaction Transaction @relation(fields: [id], references: [id])
 }
