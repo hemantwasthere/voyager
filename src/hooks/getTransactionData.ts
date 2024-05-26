@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const getTransactionData = async (
+export const getTransactionReceipt = async (
   txHash: string[]
 ): Promise<{
   result: any;

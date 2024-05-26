@@ -14,9 +14,9 @@ import { Icons } from "@/components/Icons";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getEthPrice } from "@/hooks/getEthPrice";
-import { getTransactionData } from "@/hooks/getTransactionData";
+import { getTransactionReceipt } from "@/hooks/getTransactionData";
 import { cn, formatTimestamp, timeSince } from "@/lib/utils";
-import { useTransactionStore } from "@/store/TransactionStore";
+import { getTransactionDataFromHash } from "@/server-actions";
 
 const roboto = Roboto({
   weight: "400",
@@ -36,9 +36,19 @@ const Page: NextPage<PageProps> = ({ params }) => {
     queryKey: ["all-block-transactions"],
     queryFn: async () => {
       if (!params.txHash) return;
-      return await getTransactionData([params.txHash]);
+      return await getTransactionReceipt([params.txHash]);
     },
   });
+
+  // const { data: data2 } = useQuery({
+  //   queryKey: ["get-transaction-data-from-hash"],
+  //   queryFn: async () => {
+  //     if (!params.txHash) return;
+  //     return await getTransactionDataFromHash(params.txHash);
+  //   },
+  // });
+
+  // console.log(data2);
 
   const { data: ethPrice } = useQuery({
     queryKey: ["get-eth-price"],
@@ -47,40 +57,40 @@ const Page: NextPage<PageProps> = ({ params }) => {
     },
   });
 
-  // if (isPending) return <div>Loading...</div>;
+  if (isPending) return <div>Loading...</div>;
 
-  // if (isError) return <div>Something went wrong</div>;
+  if (isError) return <div>Something went wrong</div>;
 
-  // const formattedEventData: EventsColumn[] = data?.result?.events?.map(
-  //   (event: any) => ({
-  //     id: event.id,
-  //     block: event.block,
-  //     createdAt: event.timestamp,
-  //   })
-  // );
+  const formattedEventData: EventsColumn[] = data?.result?.events?.map(
+    (event: any) => ({
+      id: event.id,
+      block: event.block,
+      createdAt: event.timestamp,
+    })
+  );
 
-  const formattedEventData: EventsColumn[] = [
-    {
-      id: "622371_21_3",
-      block: 622371,
-      createdAt: timeSince(1637069048),
-    },
-    {
-      id: "622371_21_2",
-      block: 622371,
-      createdAt: timeSince(1637069048),
-    },
-    {
-      id: "622371_21_1",
-      block: 622371,
-      createdAt: timeSince(1637069048),
-    },
-    {
-      id: "622371_21_0",
-      block: 622371,
-      createdAt: timeSince(1637069048),
-    },
-  ];
+  // const formattedEventData: EventsColumn[] = [
+  //   {
+  //     id: "622371_21_3",
+  //     block: 622371,
+  //     createdAt: timeSince(1637069048),
+  //   },
+  //   {
+  //     id: "622371_21_2",
+  //     block: 622371,
+  //     createdAt: timeSince(1637069048),
+  //   },
+  //   {
+  //     id: "622371_21_1",
+  //     block: 622371,
+  //     createdAt: timeSince(1637069048),
+  //   },
+  //   {
+  //     id: "622371_21_0",
+  //     block: 622371,
+  //     createdAt: timeSince(1637069048),
+  //   },
+  // ];
 
   return (
     <>

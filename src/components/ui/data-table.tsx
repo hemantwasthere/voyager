@@ -67,7 +67,7 @@ export function DataTable<TData, TValue>({
             <Button
               onClick={() => {
                 table.getColumn("type")?.setFilterValue(""),
-                  isTransactionFilters && setIsFilterApplied!(true);
+                  isTransactionFilters && setIsFilterApplied!(false);
               }}
               className={cn(
                 "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",

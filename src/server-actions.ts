@@ -38,8 +38,6 @@ export async function fetchAllTransactions(pageParam: number): Promise<{
     },
   });
 
-  console.log(allBlocks);
-
   // Extract transactions from all blocks
   const allTransactions = allBlocks.flatMap((block) =>
     block.blocks.flatMap((b) => b.allTransactions)
@@ -59,3 +57,84 @@ export async function fetchAllTransactions(pageParam: number): Promise<{
     });
   });
 }
+
+export const getTransactionDataFromHash = async (txHash: string) => {
+  const transactionData = await db.allBlocks.findFirst({
+    where: {
+      blocks: {
+        some: {
+          allTransactions: {
+            some: {
+              txHash: txHash,
+            },
+          },
+        },
+      },
+    },
+    select: {
+      blocks: {
+        select: {
+          blockHash: true,
+          blockNumber: true,
+          timestamp: true,
+          allTransactions: {
+            where: {
+              txHash: txHash,
+            },
+            select: {
+              txHash: true,
+              txType: true,
+              calldata: true,
+              feeDataAvailabilityMode: true,
+              nonce: true,
+              nonceDataAvailabilityMode: true,
+              tip: true,
+              transactionDetails: {
+                select: {
+                  blockNumber: true,
+                  timestamp: true,
+                  actualFee: true,
+                  maxFee: true,
+                  gasConsumed: true,
+                  senderAddress: true,
+                },
+              },
+              developerInfo: {
+                select: {
+                  unixTimestamp: true,
+                  nonce: true,
+                  position: true,
+                  version: true,
+                  executionResources: true,
+                  calldata: true,
+                  signatures: true,
+                },
+              },
+              events: {
+                select: {
+                  ID: true,
+                  block: true,
+                  age: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!transactionData) {
+    return new Promise((resolve) => {
+      resolve({
+        result: null,
+      });
+    });
+  }
+
+  return new Promise((resolve) => {
+    resolve({
+      result: transactionData,
+    });
+  });
+};
