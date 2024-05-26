@@ -62,7 +62,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
           signatures: txn?.signature,
           tip: txn?.tip,
           txHash: txn?.transaction_hash,
-          txType: txn?.type,
+          txType: txn?.type === "DEPLOY" ? "_DEPLOY" : txn?.type,
           transactionDetails: {
             blockNumber: latestBlockNumber,
             timestamp: data?.timestamp,

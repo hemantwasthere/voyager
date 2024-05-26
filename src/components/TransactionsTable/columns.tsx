@@ -1,5 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 
+import Link from "next/link";
 import CopyIcon from "../Copy";
 import { HashCell } from "./Cells/HashCell";
 import { StatusCell } from "./Cells/StatusCell";
@@ -40,12 +41,15 @@ export const columns: ColumnDef<TransactionColumn>[] = [
     accessorKey: "block",
     header: "BLOCK",
     cell: ({ row }) => (
-      <div className="flex items-center gap-2">
+      <Link
+        href={`https://voyager.online/block/${row.original.block.toString()}`}
+        className="flex items-center gap-2"
+      >
         <p className="cursor-pointer text-sm text-[#8BA3DF] hover:text-[#BAD8FD]">
           {row.original.block}
         </p>
         <CopyIcon copyValue={row.original.block.toString()} />
-      </div>
+      </Link>
     ),
   },
   {

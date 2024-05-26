@@ -18,10 +18,10 @@ export const TypeCell: React.FC<TransactionsCellActionProps> = ({ data }) => {
     );
   }
 
-  if (data.type === "DEPLOY") {
+  if (data.type === "_DEPLOY") {
     return (
       <div className="text-sm font-[300] py-0.5 px-[10px] border border-[#3C4F6E] bg-[#223555] text-[#D2E4FF] rounded-sm w-fit">
-        {data.type}
+        DEPLOY
       </div>
     );
   }

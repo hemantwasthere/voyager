@@ -21,7 +21,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
   return (
     <TooltipProvider delayDuration={0}>
       <Tooltip>
-        <TooltipTrigger>{children}</TooltipTrigger>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
         <TooltipContent
           className={cn(
             "bg-white font-normal text-black rounded-md px-2 text-xs py-1 bg-white/90",
