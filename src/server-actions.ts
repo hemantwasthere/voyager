@@ -1,36 +1,61 @@
-// "use server";
+"use server";
 
-// import { Block, Transaction } from "@prisma/client";
+import { Block } from "@prisma/client";
 
-// import { db } from "@/db";
+import { db } from "@/db";
+import { PAGE_LIMIT } from "./constants";
 
-// export const addBlock = async (blockNumber: number, timestamp: string) => {
-//   // await db.allBlocks.create({
-//   //   data: {
-//   //     blocks: {
-//   //       create: {
-//   //         blockNumber: blockData.blockNumber,
-//   //         timestamp: blockData.timestamp,
-//   //         allTransactions: blockData.allTransactions,
-//   //       },
-//   //     },
-//   //   },
-//   // });
-//   await db.block.create({
-//     data: {
-//       blockNumber: blockNumber,
-//       timestamp: timestamp,
-//     },
-//   });
-// };
+export const addBlock = async (blockData: Block) => {
+  const existingBlock = await db.allBlocks.findFirst({
+    where: {
+      blocks: {
+        some: {
+          blockNumber: blockData.blockNumber,
+        },
+      },
+    },
+  });
 
-// export const addTransaction = async (transactionData: any, blockId: string) => {
-//   await db.allTransactions.create({
-//     data: {
-//       transactions: transactionData.transactionHash,
-//       type: transactionData.type,
-//       status: transactionData.status,
-//       blockId: blockId,
-//     },
-//   });
-// };
+  if (existingBlock) {
+    return;
+  }
+
+  await db.allBlocks.createMany({
+    data: {
+      blocks: blockData,
+    },
+  });
+};
+
+export async function fetchAllTransactions(pageParam: number): Promise<{
+  transactions: any;
+  currentPage: number;
+  nextPage: number | null;
+}> {
+  const allBlocks = await db.allBlocks.findMany({
+    include: {
+      blocks: true,
+    },
+  });
+
+  console.log(allBlocks);
+
+  // Extract transactions from all blocks
+  const allTransactions = allBlocks.flatMap((block) =>
+    block.blocks.flatMap((b) => b.allTransactions)
+  );
+
+  return new Promise((resolve) => {
+    resolve({
+      transactions: allTransactions.slice(
+        pageParam * PAGE_LIMIT,
+        (pageParam + 1) * PAGE_LIMIT
+      ),
+      currentPage: pageParam,
+      nextPage:
+        allTransactions.length > (pageParam + 1) * PAGE_LIMIT
+          ? pageParam + 1
+          : null,
+    });
+  });
+}

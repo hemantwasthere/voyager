@@ -1,8 +1,24 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
 import { NextPage } from "next";
 
 import TransactionsTable from "@/components/TransactionsTable";
+import { getLatestBlockNumber } from "@/hooks/getLatestBlockNumber";
 
 const Home: NextPage = () => {
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["latest-block-number"],
+    queryFn: getLatestBlockNumber,
+    retry: true,
+    retryDelay: 3000,
+    refetchInterval: 40000,
+  });
+
+  if (isPending) return <div>Loading block...</div>;
+
+  if (isError) return <div>Something went wrong</div>;
+
   return (
     <>
       <h1 className="text-2xl text-white font-normal align-baseline">
@@ -13,7 +29,7 @@ const Home: NextPage = () => {
       </p>
 
       <div className="mt-8">
-        <TransactionsTable />
+        <TransactionsTable latestBlockNumber={data?.data?.result} />
       </div>
     </>
   );

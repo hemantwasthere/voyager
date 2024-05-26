@@ -30,7 +30,7 @@ interface PageProps {
 }
 
 const Page: NextPage<PageProps> = ({ params }) => {
-  const [timestamp] = useTransactionStore((state) => [state.timestamp]);
+  const timestamp = 1637069048;
 
   const { data, isPending, isError } = useQuery({
     queryKey: ["all-block-transactions"],
@@ -63,22 +63,22 @@ const Page: NextPage<PageProps> = ({ params }) => {
     {
       id: "622371_21_3",
       block: 622371,
-      createdAt: timeSince("1637069048"),
+      createdAt: timeSince(1637069048),
     },
     {
       id: "622371_21_2",
       block: 622371,
-      createdAt: timeSince("1637069048"),
+      createdAt: timeSince(1637069048),
     },
     {
       id: "622371_21_1",
       block: 622371,
-      createdAt: timeSince("1637069048"),
+      createdAt: timeSince(1637069048),
     },
     {
       id: "622371_21_0",
       block: 622371,
-      createdAt: timeSince("1637069048"),
+      createdAt: timeSince(1637069048),
     },
   ];
 

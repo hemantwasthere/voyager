@@ -29,6 +29,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   searchKey: string;
   isTransactionFilters?: boolean;
+  setIsFilterApplied?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function DataTable<TData, TValue>({
@@ -36,6 +37,7 @@ export function DataTable<TData, TValue>({
   data,
   searchKey,
   isTransactionFilters = false,
+  setIsFilterApplied,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -63,7 +65,10 @@ export function DataTable<TData, TValue>({
         <div className="overflow-x-auto mb-6">
           <div className="w-fit h-[33px] flex border border-[#4B4B4B]">
             <Button
-              onClick={() => table.getColumn("type")?.setFilterValue("")}
+              onClick={() => {
+                table.getColumn("type")?.setFilterValue(""),
+                  isTransactionFilters && setIsFilterApplied!(true);
+              }}
               className={cn(
                 "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
                 {
@@ -76,7 +81,10 @@ export function DataTable<TData, TValue>({
               All
             </Button>
             <Button
-              onClick={() => table.getColumn("type")?.setFilterValue("declare")}
+              onClick={() => {
+                table.getColumn("type")?.setFilterValue("declare"),
+                  isTransactionFilters && setIsFilterApplied!(true);
+              }}
               className={cn(
                 "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
                 {
@@ -88,7 +96,10 @@ export function DataTable<TData, TValue>({
               declare
             </Button>
             <Button
-              onClick={() => table.getColumn("type")?.setFilterValue("deploy")}
+              onClick={() => {
+                table.getColumn("type")?.setFilterValue("deploy"),
+                  isTransactionFilters && setIsFilterApplied!(true);
+              }}
               className={cn(
                 "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
                 {
@@ -100,9 +111,10 @@ export function DataTable<TData, TValue>({
               deploy
             </Button>
             <Button
-              onClick={() =>
-                table.getColumn("type")?.setFilterValue("deploy_account")
-              }
+              onClick={() => {
+                table.getColumn("type")?.setFilterValue("deploy_account"),
+                  isTransactionFilters && setIsFilterApplied!(true);
+              }}
               className={cn(
                 "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
                 {
@@ -115,7 +127,10 @@ export function DataTable<TData, TValue>({
               deploy_account
             </Button>
             <Button
-              onClick={() => table.getColumn("type")?.setFilterValue("invoke")}
+              onClick={() => {
+                table.getColumn("type")?.setFilterValue("invoke"),
+                  isTransactionFilters && setIsFilterApplied!(true);
+              }}
               className={cn(
                 "rounded-none hover:bg-[#383838] text-sm h-full border-r border-[#4B4B4B]",
                 {
@@ -127,9 +142,10 @@ export function DataTable<TData, TValue>({
               invoke
             </Button>
             <Button
-              onClick={() =>
-                table.getColumn("type")?.setFilterValue("l1_handler")
-              }
+              onClick={() => {
+                table.getColumn("type")?.setFilterValue("l1_handler"),
+                  isTransactionFilters && setIsFilterApplied!(true);
+              }}
               className={cn("rounded-none hover:bg-[#383838] text-sm h-full", {
                 "bg-[#4B4B4B] hover:bg-[#4B4B4B]":
                   table.getColumn("type")?.getFilterValue() === "l1_handler",

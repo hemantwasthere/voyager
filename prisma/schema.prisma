@@ -4,95 +4,88 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 model AllBlocks {
-  id String @id @default(cuid())
-
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
   blocks Block[]
 }
 
-model Block {
-  id String @id @default(cuid())
+type Block {
+  blockHash        String?
+  blockNumber      Int?
+  l1DaMode         String?
+  l1DataGasPrice   GasPrice?
+  l1GasPrice       GasPrice?
+  newRoot          String?
+  parentHash       String?
+  sequencerAddress String?
+  starknetVersion  String?
+  status           String?
 
-  blockNumber Int
-  timestamp   String
-
-  allTransactionsId String
-  allTransactions   AllTransactions @relation(fields: [allTransactionsId], references: [id])
-
-  allBlocksId String?
-  allBlocks   AllBlocks? @relation(fields: [allBlocksId], references: [id])
+  timestamp       Int?
+  allTransactions Transaction[]
 }
 
-model AllTransactions {
-  id String @id @default(cuid())
-
-  transactions Transaction[]
-  block        Block[]
+type GasPrice {
+  priceInFri String?
+  priceInWei String?
 }
 
-model Transaction {
-  id String @id @default(cuid())
-
-  txHash    String
-  txType    String
-  timestamp String
-
-  transactionDetailsId String
-  transactionDetails   TransactionDetails @relation(fields: [transactionDetailsId], references: [id])
-
-  developerInfoId String
-  developerInfo   DeveloperInfo @relation(fields: [developerInfoId], references: [id])
-
-  events Event[]
-
-  blockId           String?
-  AllTransactions   AllTransactions? @relation(fields: [allTransactionsId], references: [id])
-  allTransactionsId String?
+type Transaction {
+  calldata                  String[]
+  feeDataAvailabilityMode   String?
+  nonce                     String?
+  nonceDataAvailabilityMode String?
+  resourceBounds            ResourceBounds?
+  signatures                String[]
+  tip                       String?
+  txHash                    String?
+  txType                    String?
+  transactionDetails        TransactionDetails?
+  developerInfo             DeveloperInfo?
+  events                    Event[]
 }
 
-model TransactionDetails {
-  id String @id @default(cuid())
+type ResourceBounds {
+  l1Gas         Gas?
+  l2Gas         Gas?
+  senderAddress String?
+}
 
+type Gas {
+  maxAmount       String?
+  maxPricePerUnit String?
+}
+
+type TransactionDetails {
   blockNumber   Int
-  timestamp     String
+  timestamp     Int
   actualFee     String
   maxFee        String
   gasConsumed   String
   senderAddress String
-
-  transaction Transaction[]
 }
 
-model DeveloperInfo {
-  id String @id @default(cuid())
-
-  unixTimestamp      String
+type DeveloperInfo {
+  unixTimestamp      Int
   nonce              String
   position           Int
   version            String
   executionResources String[]
-  calldata           String
+  calldata           String[]
   signatures         String[]
-
-  transaction Transaction[]
 }
 
-model Event {
-  id String @id @default(cuid())
-
-  ID    String
-  block Int
-  age   String
-
-  transactionId String?
-  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+type Event {
+  ID    String?
+  block Int?
+  age   Int?
 }

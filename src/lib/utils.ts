@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function timeSince(timestamp: string): string {
+export function timeSince(timestamp: number): string {
   const now = Math.floor(Date.now() / 1000); // current time in seconds
   const seconds = now - Number(timestamp);
 
@@ -28,7 +28,7 @@ export function timeSince(timestamp: string): string {
   return "just now";
 }
 
-export function formatTimestamp(timestamp: string): string {
+export function formatTimestamp(timestamp: number): string {
   const date = new Date(Number(timestamp) * 1000); // Convert Unix timestamp to milliseconds
   const options: Intl.DateTimeFormatOptions = {
     year: "numeric",

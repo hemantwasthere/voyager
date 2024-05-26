@@ -1,99 +1,112 @@
 "use client";
 
+import { Block } from "@prisma/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
-import { getLatestBlockNumber } from "@/hooks/getLatestBlockNumber";
-// import { addBlock } from "@/server-actions";
+import { getAllBlockTransactions } from "@/hooks/getAllBlockTransaction";
+import { addBlock } from "@/server-actions";
 import Client from "./client";
 
-const TransactionsTable: React.FC = () => {
-  const { data, isPending, isError } = useQuery({
-    queryKey: ["latest-block-number"],
-    queryFn: getLatestBlockNumber,
+interface TransactionsTableProps {
+  latestBlockNumber: number;
+}
+
+const TransactionsTable: React.FC<TransactionsTableProps> = ({
+  latestBlockNumber,
+}) => {
+  const { data } = useQuery({
+    queryKey: ["get-all-block-transactions"],
+    queryFn: () => getAllBlockTransactions(latestBlockNumber),
+    retry: true,
+    retryDelay: 3000,
+    refetchInterval: 50000,
   });
 
-  const demo_data = {
-    data: {
-      result: {
-        status: "ACCEPTED_ON_L2",
-        transactions: [
-          {
-            id: "1",
-            status: "ACCEPTED_ON_L2",
-            transaction_hash: "0x123456789",
-            type: "INVOKE",
-            block: "123456789",
-            version: "0x1",
-            createdAt: "1716556803",
+  const { mutate } = useMutation({
+    mutationKey: ["add-block"],
+    mutationFn: async () => {
+      const inputData: Block = {
+        blockHash: data?.block_hash,
+        blockNumber: data?.block_number,
+        l1DaMode: data?.l1_da_mode,
+        l1DataGasPrice: {
+          priceInFri: data?.l1_data_gas_price?.price_in_fri,
+          priceInWei: data?.l1_data_gas_price?.price_in_wei,
+        },
+        l1GasPrice: {
+          priceInFri: data?.l1_gas_price?.price_in_fri,
+          priceInWei: data?.l1_gas_price?.price_in_wei,
+        },
+        newRoot: data?.new_root,
+        parentHash: data?.parent_hash,
+        sequencerAddress: data?.sequencer_address,
+        starknetVersion: data?.starknet_version,
+        status: data?.status,
+        allTransactions: data?.transactions.map((txn: any) => ({
+          calldata: txn?.calldata,
+          feeDataAvailabilityMode: txn?.fee_data_availability_mode,
+          nonce: txn?.nonce,
+          nonceDataAvailabilityMode: txn?.nonce_data_availability_mode,
+          resourceBounds: {
+            l1Gas: {
+              maxAmount: txn?.resource_bounds?.l1_gas?.max_amount,
+              maxPricePerUnit: txn?.resource_bounds?.l1_gas?.max_price_per_unit,
+            },
+            l2Gas: {
+              maxAmount: txn?.resource_bounds?.l2_gas?.max_amount,
+              maxPricePerUnit: txn?.resource_bounds?.l2_gas?.max_price_per_unit,
+            },
+            senderAddress: txn?.sender_address ?? "0xv1",
           },
-          {
-            id: "2",
-            status: "ACCEPTED_ON_L2",
-            transaction_hash: "0x123456789",
-            type: "DECLARE",
-            block: "123456789",
-            version: "0x1",
-            createdAt: "1716556803",
+          signatures: txn?.signature,
+          tip: txn?.tip,
+          txHash: txn?.transaction_hash,
+          txType: txn?.type,
+          transactionDetails: {
+            blockNumber: latestBlockNumber,
+            timestamp: data?.timestamp,
+            actualFee: txn?.actual_fee ?? "0",
+            maxFee: txn?.max_fee ?? "0",
+            gasConsumed: txn?.gas_consumed ?? "0",
+            senderAddress: txn?.sender_address ?? "0xv1",
           },
-          {
-            id: "3",
-            status: "ACCEPTED_ON_L2",
-            transaction_hash: "0x123456789",
-            type: "DEPLOY",
-            block: "123456789",
-            version: "0x1",
-            createdAt: "1716556803",
+          developerInfo: {
+            unixTimestamp: data?.timestamp,
+            nonce: txn?.nonce ?? "nonce",
+            position: txn?.position ?? 0,
+            version: txn?.version ?? "1",
+            executionResources: txn?.execution_resources ?? [],
+            calldata: txn?.calldata,
+            signatures: txn?.signature ?? [],
           },
-          {
-            id: "3",
-            status: "ACCEPTED_ON_L2",
-            transaction_hash: "0x123456789",
-            type: "DEPLOY_ACCOUNT",
-            block: "123456789",
-            version: "0x1",
-            createdAt: "1716556803",
-          },
-          {
-            id: "4",
-            status: "REVERTED",
-            transaction_hash: "0x123456789",
-            type: "INVOKE",
-            block: "123456789",
-            version: "0x1",
-            createdAt: "1716556803",
-          },
-          {
-            id: "5",
-            status: "ACCEPTED_ON_L2",
-            transaction_hash: "0x123456789",
-            type: "L1_HANDLER",
-            block: "123456789",
-            version: "0x1",
-            createdAt: "1716556803",
-          },
-        ],
-        timestamp: "1637069048",
-      },
+          events: [
+            {
+              ID: txn?.events?.id ?? "1234_0_1",
+              block: txn?.events?.block ?? 0,
+              age: txn?.events?.age ?? 0,
+            },
+          ],
+        })),
+        timestamp: data?.timestamp,
+      };
+
+      await addBlock(inputData);
     },
-  };
+    retry: true,
+    retryDelay: 3000,
+  });
 
-  // const { mutate, error } = useMutation({
-  //   mutationKey: ["add-block"],
-  //   mutationFn: async () => {
-  //     await addBlock({
-  //       blockNumber: data?.data.result?.block_number ?? 423434,
-  //       timestamp: demo_data?.data?.result?.timestamp ?? "123456",
-  //     });
-  //   },
-  // });
+  useEffect(() => {
+    if (data?.transactions) mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestBlockNumber]);
 
-  // if (error) console.log(error, "errorr");
-
-  // if (isPending) return <div>Loading block...</div>;
-
-  // if (isError) return <div>Something went wrong</div>;
-
-  return <Client latestBlockNumber={data?.data?.result ?? 622371} />;
+  return (
+    <>
+      <Client latestBlockNumber={latestBlockNumber} />
+    </>
+  );
 };
 
 export default TransactionsTable;

@@ -1,5 +1,11 @@
 import axios from "axios";
 
+// export const getLatestBlockNumber = async () => {
+//   const data = await axios.post("/api/blocknumber");
+
+//   return data;
+// };
+
 export const getLatestBlockNumber = async () => {
   return await axios.post(
     "https://free-rpc.nethermind.io/mainnet-juno",
