@@ -11,14 +11,7 @@ import { Skeleton } from "./ui/skeleton";
 const LoadingSkeleton = () => {
   return (
     <>
-      {" "}
-      <h1 className="text-2xl text-white font-normal align-baseline">
-        Transactions
-      </h1>
-      <p className="mt-2 text-sm font-light text-[#cacaca] leading-[1.4]">
-        A list of transactions on starknet
-      </p>
-      <div className="overflow-x-auto mb-6 mt-8">
+      <div className="overflow-x-auto mb-6">
         <div className="w-[500px] h-[33px] flex border border-[#4B4B4B]">
           {[...Array(5)].map((item) => (
             <div
