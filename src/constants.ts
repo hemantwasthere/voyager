@@ -59,7 +59,7 @@ export const DEMO_DATA: Block = {
         timestamp: 1710834752,
       },
       developerInfo: {
-        calldata: "calldata",
+        calldata: ["calldata"],
         executionResources: ["9624", "25", "286", "3"],
         nonce: "35841",
         position: 165,
