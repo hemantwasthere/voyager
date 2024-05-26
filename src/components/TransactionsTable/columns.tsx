@@ -41,15 +41,16 @@ export const columns: ColumnDef<TransactionColumn>[] = [
     accessorKey: "block",
     header: "BLOCK",
     cell: ({ row }) => (
-      <Link
-        href={`https://voyager.online/block/${row.original.block.toString()}`}
-        className="flex items-center gap-2"
-      >
-        <p className="cursor-pointer text-sm text-[#8BA3DF] hover:text-[#BAD8FD]">
-          {row.original.block}
-        </p>
+      <div className="flex items-center gap-2">
+        <Link
+          href={`https://voyager.online/block/${row.original.block.toString()}`}
+        >
+          <p className="cursor-pointer text-sm text-[#8BA3DF] hover:text-[#BAD8FD]">
+            {row.original.block}
+          </p>
+        </Link>
         <CopyIcon copyValue={row.original.block.toString()} />
-      </Link>
+      </div>
     ),
   },
   {
