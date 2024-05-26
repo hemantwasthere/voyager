@@ -12,7 +12,7 @@ const Home: NextPage = () => {
     queryFn: getLatestBlockNumber,
     retry: true,
     retryDelay: 3000,
-    refetchInterval: 40000,
+    refetchInterval: 4000,
   });
 
   if (isPending) return <div>Loading block...</div>;

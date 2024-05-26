@@ -36,12 +36,17 @@ export async function fetchAllTransactions(pageParam: number): Promise<{
     include: {
       blocks: true,
     },
+    orderBy: {
+      blocks: {
+        _count: "asc",
+      },
+    },
   });
 
   // Extract transactions from all blocks
-  const allTransactions = allBlocks.flatMap((block) =>
-    block.blocks.flatMap((b) => b.allTransactions)
-  );
+  const allTransactions = allBlocks
+    .flatMap((block) => block.blocks.flatMap((b) => b.allTransactions))
+    .reverse();
 
   return new Promise((resolve) => {
     resolve({

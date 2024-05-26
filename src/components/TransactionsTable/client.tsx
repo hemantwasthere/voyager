@@ -10,11 +10,7 @@ import { fetchAllTransactions } from "@/server-actions";
 import { DataTable } from "../ui/data-table";
 import { TransactionColumn, columns } from "./columns";
 
-interface ClientProps {
-  latestBlockNumber: number;
-}
-
-const Client: React.FC<ClientProps> = ({ latestBlockNumber }) => {
+const Client: React.FC = () => {
   const [isFilterApplied, setIsFilterApplied] = useState(false);
 
   const { ref, inView } = useInView();
@@ -52,7 +48,7 @@ const Client: React.FC<ClientProps> = ({ latestBlockNumber }) => {
         status: DEMO_DATA.status!,
         hash: txn.txHash!,
         type: txn.txType!,
-        block: latestBlockNumber!,
+        block: txn.transactionDetails?.blockNumber!,
         version: txn.developerInfo?.version!,
         createdAt: timeSince(Number(txn.transactionDetails?.timestamp)),
       }));
