@@ -23,8 +23,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     refetchInterval: 5000,
   });
 
-  console.log(data);
-
   const inputData: Block = {
     blockHash: data?.block_hash,
     blockNumber: data?.block_number,
@@ -100,7 +98,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   });
 
   useEffect(() => {
-    if (data?.block_number !== latestBlockNumber) {
+    if (data) {
       mutate();
       console.log("render");
     }
