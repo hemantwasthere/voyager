@@ -1,6 +1,6 @@
 "use server";
 
-import { Block } from "@prisma/client";
+import { Block, Transaction } from "@prisma/client";
 
 import { db } from "@/db";
 import { PAGE_LIMIT } from "./constants";
@@ -58,83 +58,37 @@ export async function fetchAllTransactions(pageParam: number): Promise<{
   });
 }
 
-// export const getTransactionDataFromHash = async (txHash: string) => {
-//   const transactionData = await db.allBlocks.findFirst({
-//     where: {
-//       blocks: {
-//         some: {
-//           allTransactions: {
-//             some: {
-//               txHash: txHash,
-//             },
-//           },
-//         },
-//       },
-//     },
-//     select: {
-//       blocks: {
-//         select: {
-//           blockHash: true,
-//           blockNumber: true,
-//           timestamp: true,
-//           allTransactions: {
-//             where: {
-//               txHash: txHash,
-//             },
-//             select: {
-//               txHash: true,
-//               txType: true,
-//               calldata: true,
-//               feeDataAvailabilityMode: true,
-//               nonce: true,
-//               nonceDataAvailabilityMode: true,
-//               tip: true,
-//               transactionDetails: {
-//                 select: {
-//                   blockNumber: true,
-//                   timestamp: true,
-//                   actualFee: true,
-//                   maxFee: true,
-//                   gasConsumed: true,
-//                   senderAddress: true,
-//                 },
-//               },
-//               developerInfo: {
-//                 select: {
-//                   unixTimestamp: true,
-//                   nonce: true,
-//                   position: true,
-//                   version: true,
-//                   executionResources: true,
-//                   calldata: true,
-//                   signatures: true,
-//                 },
-//               },
-//               events: {
-//                 select: {
-//                   ID: true,
-//                   block: true,
-//                   age: true,
-//                 },
-//               },
-//             },
-//           },
-//         },
-//       },
-//     },
-//   });
+export const getTransactionDataFromHash = async (txHash: string) => {
+  // Fetch all blocks containing transactions
+  const blocks = await db.allBlocks.findMany({
+    select: {
+      blocks: {
+        select: {
+          allTransactions: true,
+        },
+      },
+    },
+  });
 
-//   if (!transactionData) {
-//     return new Promise((resolve) => {
-//       resolve({
-//         result: null,
-//       });
-//     });
-//   }
+  // Traverse through the blocks to find the transaction with the given txHash
+  for (const blockWrapper of blocks) {
+    for (const block of blockWrapper.blocks) {
+      let transaction = block.allTransactions.find(
+        (tx: any) => tx.txHash === txHash
+      );
+      if (transaction) {
+        return new Promise((resolve) => {
+          resolve({
+            result: transaction,
+          });
+        });
+      }
+    }
+  }
 
-//   return new Promise((resolve) => {
-//     resolve({
-//       result: transactionData,
-//     });
-//   });
-// };
+  return new Promise((resolve) => {
+    resolve({
+      result: null,
+    });
+  });
+};

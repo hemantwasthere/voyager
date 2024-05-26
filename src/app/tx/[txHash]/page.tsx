@@ -16,7 +16,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getEthPrice } from "@/hooks/getEthPrice";
 import { getTransactionReceipt } from "@/hooks/getTransactionData";
 import { cn, formatTimestamp, timeSince } from "@/lib/utils";
-// import { getTransactionDataFromHash } from "@/server-actions";
+import { getTransactionDataFromHash } from "@/server-actions";
+import { Transaction } from "@prisma/client";
 
 const roboto = Roboto({
   weight: "400",
@@ -30,8 +31,6 @@ interface PageProps {
 }
 
 const Page: NextPage<PageProps> = ({ params }) => {
-  const timestamp = 1637069048;
-
   const { data, isPending, isError } = useQuery({
     queryKey: ["all-block-transactions"],
     queryFn: async () => {
@@ -40,15 +39,19 @@ const Page: NextPage<PageProps> = ({ params }) => {
     },
   });
 
-  // const { data: data2 } = useQuery({
-  //   queryKey: ["get-transaction-data-from-hash"],
-  //   queryFn: async () => {
-  //     if (!params.txHash) return;
-  //     return await getTransactionDataFromHash(params.txHash);
-  //   },
-  // });
-
-  // console.log(data2);
+  const {
+    data: transactionDataFromDb,
+    isPending: isPending2,
+    isError: isError2,
+  } = useQuery({
+    queryKey: ["get-transaction-data-from-hash"],
+    queryFn: async () => {
+      if (!params.txHash) return;
+      return (await getTransactionDataFromHash(params.txHash)) as {
+        result: Transaction;
+      };
+    },
+  });
 
   const { data: ethPrice } = useQuery({
     queryKey: ["get-eth-price"],
@@ -57,15 +60,43 @@ const Page: NextPage<PageProps> = ({ params }) => {
     },
   });
 
-  if (isPending) return <div>Loading...</div>;
+  if (isPending) return <div>Fetching transaction data...</div>;
 
-  if (isError) return <div>Something went wrong</div>;
+  if (isPending2) return <div>Loading...</div>;
+
+  if (isError) return <div>Failed to fetch transaction data from api</div>;
+
+  if (isError2) return <div>Failed to fetch transaction data from db</div>;
+
+  if (!transactionDataFromDb) return null;
+
+  transactionDataFromDb.result.events = data?.result?.events?.map(
+    (event: any) => ({
+      id: event?.id ?? "id",
+      block: transactionDataFromDb?.result?.transactionDetails?.blockNumber,
+      createdAt: event?.timestamp ?? "timestamp",
+    })
+  );
+
+  if (transactionDataFromDb.result.developerInfo) {
+    transactionDataFromDb.result.developerInfo.executionResources[0] =
+      data?.result?.execution_resources?.steps;
+
+    transactionDataFromDb.result.developerInfo.executionResources[1] =
+      data?.result?.execution_resources?.pedersen_builtin_applications;
+
+    transactionDataFromDb.result.developerInfo.executionResources[2] =
+      data?.result?.execution_resources?.range_check_builtin_applications;
+
+    transactionDataFromDb.result.developerInfo.executionResources[3] =
+      data?.result?.execution_resources?.ec_op_builtin_applications;
+  }
 
   const formattedEventData: EventsColumn[] = data?.result?.events?.map(
     (event: any) => ({
-      id: event.id,
-      block: event.block,
-      createdAt: event.timestamp,
+      id: event?.id ?? "id",
+      block: transactionDataFromDb?.result?.transactionDetails?.blockNumber,
+      createdAt: event?.timestamp ?? "timestamp",
     })
   );
 
@@ -110,17 +141,20 @@ const Page: NextPage<PageProps> = ({ params }) => {
             TYPE <Icons.InfoIcon tooltipValue="Transaction type" />
           </p>
           <div className="text-[12px] font-[300] py-0.5 px-[10px] border border-[#2E4C3C] bg-[#202E26] text-[#83F3BB] rounded-sm w-fit">
-            {/* {data?.result?.type} */}
-            INVOKE
+            {transactionDataFromDb?.result?.txType}
           </div>
         </div>
 
         <div className="w-1/2 md:w-1/4 flex flex-col gap-4 md:gap-1">
           <p className="text-[12px] text-[#cacaca]">TIMESTAMP</p>
           <p className="text-base text-white flex gap-1.5 items-center">
-            {formatTimestamp(timestamp).slice(0, 11)}
+            {formatTimestamp(
+              transactionDataFromDb?.result?.developerInfo?.unixTimestamp!
+            ).slice(0, 11)}
             <span className="text-[12px] text-[#cacaca]">
-              {formatTimestamp(timestamp).slice(11)}
+              {formatTimestamp(
+                transactionDataFromDb?.result?.developerInfo?.unixTimestamp!
+              ).slice(11)}
             </span>
           </p>
         </div>
@@ -163,7 +197,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
             >
               Events
               <span className="bg-[#121212] text-[#AAAAAA] w-6 h-6 rounded-full text-[12px] flex items-center justify-center">
-                {/* {data?.result?.events?.length} */}4
+                {data?.result?.events?.length}
               </span>
             </TabsTrigger>
           </TabsList>
@@ -188,8 +222,10 @@ const Page: NextPage<PageProps> = ({ params }) => {
                         target="_blank"
                         className="flex-1 w-fit items-center text-sm text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer"
                       >
-                        {/* {data?.result?.block_number} */}
-                        622371
+                        {
+                          transactionDataFromDb?.result?.transactionDetails
+                            ?.blockNumber
+                        }
                       </Link>
                     </CustomTooltip>
                   </div>
@@ -201,7 +237,16 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     TIMESTAMP:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm  text-white">
-                    {timeSince(timestamp)} ( {formatTimestamp(timestamp)} )
+                    {timeSince(
+                      transactionDataFromDb?.result?.developerInfo
+                        ?.unixTimestamp!
+                    )}{" "}
+                    ({" "}
+                    {formatTimestamp(
+                      transactionDataFromDb?.result?.developerInfo
+                        ?.unixTimestamp!
+                    )}{" "}
+                    )
                   </div>
                 </div>
 
@@ -212,9 +257,10 @@ const Page: NextPage<PageProps> = ({ params }) => {
                   </div>
                   <div className="flex-1 flex flex-col md:flex-row gap-2 md:items-center py-2 border-b border-b-[#383838] text-sm">
                     <span>
-                      {/* {Number(data?.result?.actual_fee?.amount) /
-                        Number(1000000000000000000)} */}
-                      0.000004158559950908
+                      {Number(
+                        transactionDataFromDb?.result?.transactionDetails
+                          ?.actualFee
+                      ) / Number(1000000000000000000)}
                     </span>{" "}
                     <CustomTooltip tooltipValue="Ether">
                       <Link
@@ -225,14 +271,17 @@ const Page: NextPage<PageProps> = ({ params }) => {
                       </Link>
                     </CustomTooltip>
                     <CopyIcon copyValue="0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7" />
-                    {/* {!ethPrice?.price
+                    {!ethPrice?.price
                       ? "..."
                       : `($${(
                           ethPrice?.price *
-                          (Number(data?.result?.actual_fee?.amount) /
+                          (Number(
+                            transactionDataFromDb?.result?.transactionDetails
+                              ?.actualFee
+                          ) /
                             Number(1000000000000000000))
-                        ).toFixed(6)})`} */}
-                    ($0.015512)
+                        ).toFixed(6)})`}
+                    {/* ($0.015512) */}
                     <div className="flex items-center gap-0.5">
                       to:
                       <CustomTooltip tooltipValue="0x01176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8">
@@ -254,7 +303,12 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     MAX FEE:
                   </div>
                   <div className="flex-1 flex gap-2 flex-col md:flex-row md:items-center py-2 border-b border-b-[#383838] text-sm">
-                    <span>0.000006189588617602</span>{" "}
+                    <span>
+                      {
+                        transactionDataFromDb?.result?.transactionDetails
+                          ?.maxFee
+                      }
+                    </span>{" "}
                     <CustomTooltip tooltipValue="Ether">
                       <Link
                         href={`https://voyager.online/token/0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7`}
@@ -264,7 +318,16 @@ const Page: NextPage<PageProps> = ({ params }) => {
                       </Link>
                     </CustomTooltip>
                     <CopyIcon copyValue="0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7" />
-                    ($0.008626)
+                    {!ethPrice?.price
+                      ? "..."
+                      : `($${(
+                          ethPrice?.price *
+                          (Number(
+                            transactionDataFromDb?.result?.transactionDetails
+                              ?.maxFee
+                          ) /
+                            Number(1000000000000000000))
+                        ).toFixed(6)})`}
                   </div>
                 </div>
 
@@ -278,7 +341,10 @@ const Page: NextPage<PageProps> = ({ params }) => {
                       data?.result?.execution_resources?.data_availability
                         ?.l1_data_gas
                     } */}
-                    166
+                    {
+                      transactionDataFromDb?.result?.transactionDetails
+                        ?.gasConsumed
+                    }
                   </div>
                 </div>
 
@@ -290,13 +356,21 @@ const Page: NextPage<PageProps> = ({ params }) => {
                   <div className="flex-1 flex items-center gap-1 w-full py-2 border-b border-b-[#383838]">
                     <CustomTooltip tooltipValue="0x0039a73ab43012ff25cf715a462b6061f211088625a71e2a8d819ba260eca700">
                       <Link
-                        href={`https://voyager.online/contract/0x0039a73ab43012ff25cf715a462b6061f211088625a71e2a8d819ba260eca700`}
+                        href={`https://voyager.online/contract/${transactionDataFromDb?.result?.transactionDetails?.senderAddress}`}
                         className="w-fit text-sm text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer break-all"
                       >
-                        0x0039a73ab43012ff25cf715a462b6061f211088625a71e2a8d819ba260eca700
+                        {
+                          transactionDataFromDb?.result?.transactionDetails
+                            ?.senderAddress
+                        }
                       </Link>
                     </CustomTooltip>
-                    <CopyIcon copyValue="0x07f438bc613360e100abfcb90726dbe2e22266494c487a31c208c8fcf4fdb8ee" />
+                    <CopyIcon
+                      copyValue={
+                        transactionDataFromDb?.result?.transactionDetails
+                          ?.senderAddress ?? ""
+                      }
+                    />
                   </div>
                 </div>
               </div>
@@ -314,9 +388,16 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     UNIX TIMESTAMP:
                   </div>
                   <div className="flex-1 flex items-center gap-3 py-2 border-b border-b-[#383838] text-sm">
-                    {/* {timestamp} */}
-                    1637069048
-                    <CopyIcon copyValue="1637069048" />
+                    {
+                      transactionDataFromDb?.result?.developerInfo
+                        ?.unixTimestamp
+                    }
+                    <CopyIcon
+                      copyValue={
+                        transactionDataFromDb?.result?.developerInfo?.unixTimestamp?.toString() ??
+                        ""
+                      }
+                    />
                   </div>
                 </div>
 
@@ -326,7 +407,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     NONCE:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm">
-                    36
+                    {transactionDataFromDb?.result?.developerInfo?.nonce ?? "-"}
                   </div>
                 </div>
 
@@ -336,7 +417,8 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     POSITION:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm">
-                    21
+                    {transactionDataFromDb?.result?.developerInfo?.position ??
+                      "-"}
                   </div>
                 </div>
 
@@ -357,30 +439,33 @@ const Page: NextPage<PageProps> = ({ params }) => {
                   </div>
                   <div className="flex-1 items-center py-1 border-b border-b-[#383838] text-sm">
                     <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#2E4C3C] bg-[#202E26] text-[#83F3BB] rounded-sm w-fit">
-                      {/* {data?.result?.execution_resources?.steps} STEPS */}
-                      65550 STEPS
+                      {
+                        transactionDataFromDb?.result?.developerInfo
+                          ?.executionResources[0]
+                      }{" "}
+                      STEPS
                     </div>
                     <div className="flex items-center flex-wrap gap-3 mt-1">
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {/* {
-                          data?.result?.execution_resources
-                            ?.pedersen_builtin_applications
-                        }{" "} */}
-                        68 PEDERSEN_BUILTIN{" "}
+                        {
+                          transactionDataFromDb?.result?.developerInfo
+                            ?.executionResources[1]
+                        }{" "}
+                        PEDERSEN_BUILTIN{" "}
                       </div>
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {/* {
-                          data?.result?.execution_resources
-                            ?.range_check_builtin_applications
-                        }{" "} */}
-                        2388 RANGE_CHECK_BUILTIN
+                        {
+                          transactionDataFromDb?.result?.developerInfo
+                            ?.executionResources[2]
+                        }{" "}
+                        RANGE_CHECK_BUILTIN
                       </div>
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {/* {
-                          data?.result?.execution_resources
-                            ?.ec_op_builtin_applications
-                        }{" "} */}
-                        3 EC_OP_BUILTIN
+                        {
+                          transactionDataFromDb?.result?.developerInfo
+                            ?.executionResources[3]
+                        }{" "}
+                        EC_OP_BUILTIN
                       </div>
                     </div>
                   </div>
@@ -580,24 +665,45 @@ const Page: NextPage<PageProps> = ({ params }) => {
                   </div>
                 </div>
 
-                <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
-                  <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
-                    <Icons.InfoIcon tooltipValue="Signature(s) of the transaction" />
-                    SIGNATURE(S):
+                {transactionDataFromDb?.result?.developerInfo
+                  ?.signatures[0] && (
+                  <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
+                    <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
+                      <Icons.InfoIcon tooltipValue="Signature(s) of the transaction" />
+                      SIGNATURE(S):
+                    </div>
+                    <div className="flex-1 flex items-center gap-1 md:gap-0 justify-between py-2 border-b border-b-[#383838] text-sm text-[#F5AB35] break-all hover:bg-[#383838] px-2">
+                      {
+                        transactionDataFromDb?.result?.developerInfo
+                          ?.signatures[0]
+                      }
+                      <CopyIcon
+                        copyValue={
+                          transactionDataFromDb?.result?.developerInfo
+                            ?.signatures[0]
+                        }
+                      />
+                    </div>
                   </div>
-                  <div className="flex-1 flex items-center gap-1 md:gap-0 justify-between py-2 border-b border-b-[#383838] text-sm text-[#F5AB35] break-all hover:bg-[#383838] px-2">
-                    0x48865bdad03000a448cf96ea4029f34d85c9691365c8db0a25773d7e1cdf35d
-                    <CopyIcon copyValue="0x48865bdad03000a448cf96ea4029f34d85c9691365c8db0a25773d7e1cdf35d" />
-                  </div>
-                </div>
+                )}
 
-                <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
-                  <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5" />
-                  <div className="flex-1 flex items-center gap-1 md:gap-0 justify-between py-2 border-b border-b-[#383838] text-sm text-[#F5AB35] break-all hover:bg-[#383838] px-2">
-                    0x5651b313ca7731c8540c6742dc0bfb816af1f98845b936d4687fb99e52c2f3f
-                    <CopyIcon copyValue="0x5651b313ca7731c8540c6742dc0bfb816af1f98845b936d4687fb99e52c2f3f" />
-                  </div>
-                </div>
+                {transactionDataFromDb?.result?.developerInfo?.signatures &&
+                  transactionDataFromDb?.result?.developerInfo?.signatures
+                    .length > 1 &&
+                  transactionDataFromDb?.result?.developerInfo?.signatures
+                    .slice(1)
+                    .map((sign, i) => (
+                      <div
+                        key={i}
+                        className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full"
+                      >
+                        <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5" />
+                        <div className="flex-1 flex items-center gap-1 md:gap-0 justify-between py-2 border-b border-b-[#383838] text-sm text-[#F5AB35] break-all hover:bg-[#383838] px-2">
+                          {sign}
+                          <CopyIcon copyValue={sign} />
+                        </div>
+                      </div>
+                    ))}
               </div>
             </div>
           </TabsContent>
