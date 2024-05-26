@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getEthPrice } from "@/hooks/getEthPrice";
 import { getTransactionReceipt } from "@/hooks/getTransactionData";
 import { cn, formatTimestamp, timeSince } from "@/lib/utils";
-import { getTransactionDataFromHash } from "@/server-actions";
+// import { getTransactionDataFromHash } from "@/server-actions";
 
 const roboto = Roboto({
   weight: "400",
