@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { NextPage } from "next";
 
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 import TransactionsTable from "@/components/TransactionsTable";
 import { getLatestBlockNumber } from "@/hooks/getLatestBlockNumber";
 
@@ -15,7 +16,7 @@ const Home: NextPage = () => {
     refetchInterval: 4000,
   });
 
-  if (isPending) return <div>Loading block...</div>;
+  if (isPending) return <LoadingSkeleton />;
 
   if (isError) return <div>Something went wrong</div>;
 

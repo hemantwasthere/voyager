@@ -7,6 +7,7 @@ import { useInView } from "react-intersection-observer";
 import { DEMO_DATA } from "@/constants";
 import { timeSince } from "@/lib/utils";
 import { fetchAllTransactions } from "@/server-actions";
+import LoadingSkeleton from "../LoadingSkeleton";
 import { DataTable } from "../ui/data-table";
 import { TransactionColumn, columns } from "./columns";
 
@@ -35,7 +36,7 @@ const Client: React.FC = () => {
     if (inView) fetchNextPage();
   }, [fetchNextPage, inView]);
 
-  if (isPending) return <div>Fetching transactions...</div>;
+  if (isPending) return <LoadingSkeleton />;
 
   if (isError) return <div>Something went wrong</div>;
 
