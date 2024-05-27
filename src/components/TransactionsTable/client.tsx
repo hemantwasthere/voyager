@@ -29,7 +29,7 @@ const Client: React.FC = () => {
     getNextPageParam: (lastPage) => lastPage.nextPage,
     retry: true,
     retryDelay: 5000,
-    refetchInterval: 5000,
+    refetchInterval: 70000,
     refetchIntervalInBackground: true,
   });
 

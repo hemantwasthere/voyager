@@ -20,7 +20,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     queryFn: () => getAllBlockTransactions(latestBlockNumber),
     retry: true,
     retryDelay: 3000,
-    refetchInterval: 3000,
+    refetchInterval: 65000,
     refetchIntervalInBackground: true,
   });
 

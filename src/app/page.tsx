@@ -13,7 +13,7 @@ const Home: NextPage = () => {
     queryFn: getLatestBlockNumber,
     retry: true,
     retryDelay: 3000,
-    refetchInterval: 2500,
+    refetchInterval: 60000,
     refetchIntervalInBackground: true,
   });
 
