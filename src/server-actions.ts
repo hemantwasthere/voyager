@@ -1,18 +1,17 @@
 "use server";
 
-import { Block, Transaction } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 import { db } from "@/db";
 import { PAGE_LIMIT } from "./constants";
 
-export const addBlock = async (blockData: Block) => {
-  const existingBlock = await db.allBlocks.findFirst({
+export const addBlock = async (
+  blockData: Prisma.BlockCreateInput,
+  transactionData: Prisma.TransactionCreateInput[]
+) => {
+  const existingBlock = await db.block.findUnique({
     where: {
-      blocks: {
-        some: {
-          blockNumber: blockData.blockNumber,
-        },
-      },
+      blockNumber: blockData.blockNumber!,
     },
   });
 
@@ -20,10 +19,12 @@ export const addBlock = async (blockData: Block) => {
     return;
   }
 
-  await db.allBlocks.createMany({
-    data: {
-      blocks: blockData,
-    },
+  await db.block.create({
+    data: blockData,
+  });
+
+  await db.transaction.createMany({
+    data: transactionData,
   });
 };
 
@@ -32,68 +33,52 @@ export async function fetchAllTransactions(pageParam: number): Promise<{
   currentPage: number;
   nextPage: number | null;
 }> {
-  const allBlocks = await db.allBlocks.findMany({
-    include: {
-      blocks: true,
-    },
+  const transactions = await db.transaction.findMany({
     orderBy: {
-      blocks: {
-        _count: "asc",
-      },
+      timestamp: "desc",
     },
   });
 
-  // Extract transactions from all blocks
-  const allTransactions = allBlocks.flatMap((block) =>
-    block.blocks.flatMap((b) => b.allTransactions)
-  );
-
   return new Promise((resolve) => {
     resolve({
-      transactions: allTransactions.slice(
+      transactions: transactions.slice(
         pageParam * PAGE_LIMIT,
         (pageParam + 1) * PAGE_LIMIT
       ),
       currentPage: pageParam,
       nextPage:
-        allTransactions.length > (pageParam + 1) * PAGE_LIMIT
+        transactions.length > (pageParam + 1) * PAGE_LIMIT
           ? pageParam + 1
           : null,
     });
   });
 }
 
-export const getTransactionDataFromHash = async (txHash: string) => {
-  // Fetch all blocks containing transactions
-  const blocks = await db.allBlocks.findMany({
-    select: {
-      blocks: {
-        select: {
-          allTransactions: true,
-        },
-      },
+export const getTransactionDataFromHash = async (txHash: string, data: any) => {
+  const transactions = await db.transaction.findUnique({
+    where: {
+      txHash: txHash,
     },
   });
 
-  // Traverse through the blocks to find the transaction with the given txHash
-  for (const blockWrapper of blocks) {
-    for (const block of blockWrapper.blocks) {
-      let transaction = block.allTransactions.find(
-        (tx: any) => tx.txHash === txHash
-      );
-      if (transaction) {
-        return new Promise((resolve) => {
-          resolve({
-            result: transaction,
-          });
-        });
-      }
-    }
-  }
+  if (!transactions) return null;
 
-  return new Promise((resolve) => {
-    resolve({
-      result: null,
-    });
+  await db.transaction.update({
+    where: {
+      txHash: txHash,
+    },
+    data: {
+      actualFee: data?.actual_fee.amount,
+      executionResources: [
+        `${data?.execution_resources?.steps}` ?? "",
+        `${data?.execution_resources?.pedersen_builtin_applications}` ?? "",
+        `${data?.execution_resources?.range_check_builtin_applications}` ?? "",
+        `${data?.execution_resources?.ec_op_builtin_applications}` ?? "",
+      ],
+      maxFee: "-",
+      gasConsumed: "-",
+    },
   });
+
+  return transactions;
 };

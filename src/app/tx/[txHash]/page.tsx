@@ -18,7 +18,6 @@ import { getEthPrice } from "@/hooks/getEthPrice";
 import { getTransactionReceipt } from "@/hooks/getTransactionData";
 import { cn, formatTimestamp, timeSince } from "@/lib/utils";
 import { getTransactionDataFromHash } from "@/server-actions";
-import { Transaction } from "@prisma/client";
 
 const roboto = Roboto_Mono({
   subsets: ["latin"],
@@ -39,19 +38,22 @@ const Page: NextPage<PageProps> = ({ params }) => {
     },
   });
 
+  console.log(data);
+
   const {
     data: transactionDataFromDb,
     isPending: isPending2,
     isError: isError2,
+    failureReason,
   } = useQuery({
     queryKey: ["get-transaction-data-from-hash"],
     queryFn: async () => {
       if (!params.txHash) return;
-      return (await getTransactionDataFromHash(params.txHash)) as {
-        result: Transaction;
-      };
+      return await getTransactionDataFromHash(params.txHash, data?.result);
     },
   });
+
+  console.log(failureReason);
 
   const { data: ethPrice } = useQuery({
     queryKey: ["get-eth-price"],
@@ -68,39 +70,25 @@ const Page: NextPage<PageProps> = ({ params }) => {
 
   if (!transactionDataFromDb) return null;
 
-  transactionDataFromDb.result.events = data?.result?.events?.map(
-    (event: any) => ({
-      id: event?.id ?? "id",
-      block: transactionDataFromDb?.result?.transactionDetails?.blockNumber,
-      createdAt: event?.timestamp ?? "timestamp",
-    })
-  );
-
-  if (transactionDataFromDb.result.developerInfo) {
-    transactionDataFromDb.result.developerInfo.executionResources[0] =
-      data?.result?.execution_resources?.steps;
-
-    transactionDataFromDb.result.developerInfo.executionResources[1] =
-      data?.result?.execution_resources?.pedersen_builtin_applications;
-
-    transactionDataFromDb.result.developerInfo.executionResources[2] =
-      data?.result?.execution_resources?.range_check_builtin_applications;
-
-    transactionDataFromDb.result.developerInfo.executionResources[3] =
-      data?.result?.execution_resources?.ec_op_builtin_applications;
-  }
+  // transactionDataFromDb.events = data?.result?.events?.map(
+  //   (event: any) => ({
+  //     id: event?.id ?? "id",
+  //     block: transactionDataFromDb?.result?.transactionDetails?.blockNumber,
+  //     createdAt: event?.timestamp ?? "timestamp",
+  //   })
+  // );
 
   const formattedEventData: EventsColumn[] = data?.result?.events?.map(
     (event: any, index: any) => ({
-      id: `${transactionDataFromDb?.result?.transactionDetails?.blockNumber}_${
-        transactionDataFromDb?.result?.developerInfo?.position
+      id: `${transactionDataFromDb?.blockNumber}_${
+        transactionDataFromDb?.position
       }_${data?.result?.events?.length - index - 1}`,
-      block: transactionDataFromDb?.result?.transactionDetails?.blockNumber,
-      createdAt: timeSince(
-        transactionDataFromDb?.result?.transactionDetails?.timestamp!
-      ),
+      block: transactionDataFromDb?.blockNumber,
+      createdAt: timeSince(transactionDataFromDb?.timestamp!),
     })
   );
+
+  console.log(transactionDataFromDb);
 
   // const formattedEventData: EventsColumn[] = [
   //   {
@@ -143,20 +131,19 @@ const Page: NextPage<PageProps> = ({ params }) => {
             TYPE <Icons.InfoIcon tooltipValue="Transaction type" />
           </p>
           <div className="text-[12px] font-[300] py-0.5 px-[10px] border border-[#2E4C3C] bg-[#202E26] text-[#83F3BB] rounded-sm w-fit">
-            {transactionDataFromDb?.result?.txType}
+            {transactionDataFromDb?.txType}
           </div>
         </div>
 
         <div className="w-1/2 md:w-1/4 flex flex-col gap-4 md:gap-1">
           <p className="text-[12px] text-[#cacaca]">TIMESTAMP</p>
           <p className="text-base text-white flex gap-1.5 items-center">
-            {formatTimestamp(
-              transactionDataFromDb?.result?.developerInfo?.unixTimestamp!
-            ).slice(0, 11)}
+            {formatTimestamp(transactionDataFromDb?.unixTimestamp!).slice(
+              0,
+              11
+            )}
             <span className="text-[12px] text-[#cacaca]">
-              {formatTimestamp(
-                transactionDataFromDb?.result?.developerInfo?.unixTimestamp!
-              ).slice(11)}
+              {formatTimestamp(transactionDataFromDb?.unixTimestamp!).slice(11)}
             </span>
           </p>
         </div>
@@ -224,10 +211,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
                         target="_blank"
                         className="flex-1 w-fit items-center text-sm text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer"
                       >
-                        {
-                          transactionDataFromDb?.result?.transactionDetails
-                            ?.blockNumber
-                        }
+                        {transactionDataFromDb?.blockNumber}
                       </Link>
                     </CustomTooltip>
                   </div>
@@ -239,16 +223,8 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     TIMESTAMP:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm  text-white">
-                    {timeSince(
-                      transactionDataFromDb?.result?.developerInfo
-                        ?.unixTimestamp!
-                    )}{" "}
-                    ({" "}
-                    {formatTimestamp(
-                      transactionDataFromDb?.result?.developerInfo
-                        ?.unixTimestamp!
-                    )}{" "}
-                    )
+                    {timeSince(transactionDataFromDb?.unixTimestamp!)} ({" "}
+                    {formatTimestamp(transactionDataFromDb?.unixTimestamp!)} )
                   </div>
                 </div>
 
@@ -259,10 +235,8 @@ const Page: NextPage<PageProps> = ({ params }) => {
                   </div>
                   <div className="flex-1 flex flex-col md:flex-row gap-2 md:items-center py-2 border-b border-b-[#383838] text-sm">
                     <span>
-                      {Number(
-                        transactionDataFromDb?.result?.transactionDetails
-                          ?.actualFee
-                      ) / Number(1000000000000000000)}
+                      {Number(transactionDataFromDb?.actualFee) /
+                        Number(1000000000000000000)}
                     </span>{" "}
                     <CustomTooltip tooltipValue="Ether">
                       <Link
@@ -277,10 +251,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
                       ? "..."
                       : `($${(
                           ethPrice?.price *
-                          (Number(
-                            transactionDataFromDb?.result?.transactionDetails
-                              ?.actualFee
-                          ) /
+                          (Number(transactionDataFromDb?.actualFee) /
                             Number(1000000000000000000))
                         ).toFixed(6)})`}
                     {/* ($0.015512) */}
@@ -305,12 +276,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     MAX FEE:
                   </div>
                   <div className="flex-1 flex gap-2 flex-col md:flex-row md:items-center py-2 border-b border-b-[#383838] text-sm">
-                    <span>
-                      {
-                        transactionDataFromDb?.result?.transactionDetails
-                          ?.maxFee
-                      }
-                    </span>{" "}
+                    <span>{transactionDataFromDb?.maxFee}</span>{" "}
                     <CustomTooltip tooltipValue="Ether">
                       <Link
                         href={`https://voyager.online/token/0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7`}
@@ -320,16 +286,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
                       </Link>
                     </CustomTooltip>
                     <CopyIcon copyValue="0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7" />
-                    {!ethPrice?.price
-                      ? "..."
-                      : `($${(
-                          ethPrice?.price *
-                          (Number(
-                            transactionDataFromDb?.result?.transactionDetails
-                              ?.maxFee
-                          ) /
-                            Number(1000000000000000000))
-                        ).toFixed(6)})`}
+                    {transactionDataFromDb?.maxFee}
                   </div>
                 </div>
 
@@ -339,14 +296,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     GAS CONSUMED:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm">
-                    {/* {
-                      data?.result?.execution_resources?.data_availability
-                        ?.l1_data_gas
-                    } */}
-                    {
-                      transactionDataFromDb?.result?.transactionDetails
-                        ?.gasConsumed
-                    }
+                    {transactionDataFromDb?.gasConsumed}
                   </div>
                 </div>
 
@@ -358,20 +308,14 @@ const Page: NextPage<PageProps> = ({ params }) => {
                   <div className="flex-1 flex items-center gap-1 w-full py-2 border-b border-b-[#383838]">
                     <CustomTooltip tooltipValue="0x0039a73ab43012ff25cf715a462b6061f211088625a71e2a8d819ba260eca700">
                       <Link
-                        href={`https://voyager.online/contract/${transactionDataFromDb?.result?.transactionDetails?.senderAddress}`}
+                        href={`https://voyager.online/contract/${transactionDataFromDb?.senderAddress}`}
                         className="w-fit text-sm text-[#8BA3DF] hover:text-[#BAD8FD] cursor-pointer break-all"
                       >
-                        {
-                          transactionDataFromDb?.result?.transactionDetails
-                            ?.senderAddress
-                        }
+                        {transactionDataFromDb?.senderAddress}
                       </Link>
                     </CustomTooltip>
                     <CopyIcon
-                      copyValue={
-                        transactionDataFromDb?.result?.transactionDetails
-                          ?.senderAddress ?? ""
-                      }
+                      copyValue={transactionDataFromDb?.senderAddress ?? ""}
                     />
                   </div>
                 </div>
@@ -390,14 +334,10 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     UNIX TIMESTAMP:
                   </div>
                   <div className="flex-1 flex items-center gap-3 py-2 border-b border-b-[#383838] text-sm">
-                    {
-                      transactionDataFromDb?.result?.developerInfo
-                        ?.unixTimestamp
-                    }
+                    {transactionDataFromDb?.unixTimestamp}
                     <CopyIcon
                       copyValue={
-                        transactionDataFromDb?.result?.developerInfo?.unixTimestamp?.toString() ??
-                        ""
+                        transactionDataFromDb?.unixTimestamp?.toString() ?? ""
                       }
                     />
                   </div>
@@ -409,7 +349,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     NONCE:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm">
-                    {transactionDataFromDb?.result?.developerInfo?.nonce ?? "-"}
+                    {transactionDataFromDb?.nonce ?? "-"}
                   </div>
                 </div>
 
@@ -419,8 +359,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     POSITION:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm">
-                    {transactionDataFromDb?.result?.developerInfo?.position ??
-                      "-"}
+                    {transactionDataFromDb?.position ?? "-"}
                   </div>
                 </div>
 
@@ -441,32 +380,24 @@ const Page: NextPage<PageProps> = ({ params }) => {
                   </div>
                   <div className="flex-1 items-center py-1 border-b border-b-[#383838] text-sm">
                     <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#2E4C3C] bg-[#202E26] text-[#83F3BB] rounded-sm w-fit">
-                      {
-                        transactionDataFromDb?.result?.developerInfo
-                          ?.executionResources[0]
-                      }{" "}
+                      {transactionDataFromDb?.executionResources[0] &&
+                        transactionDataFromDb?.executionResources[0]!}{" "}
                       STEPS
                     </div>
                     <div className="flex items-center flex-wrap gap-3 mt-1">
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {
-                          transactionDataFromDb?.result?.developerInfo
-                            ?.executionResources[1]
-                        }{" "}
+                        {transactionDataFromDb?.executionResources[1] &&
+                          transactionDataFromDb?.executionResources[1]!}{" "}
                         PEDERSEN_BUILTIN{" "}
                       </div>
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {
-                          transactionDataFromDb?.result?.developerInfo
-                            ?.executionResources[2]
-                        }{" "}
+                        {transactionDataFromDb?.executionResources[2] &&
+                          transactionDataFromDb?.executionResources[2]!}{" "}
                         RANGE_CHECK_BUILTIN
                       </div>
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {
-                          transactionDataFromDb?.result?.developerInfo
-                            ?.executionResources[3]
-                        }{" "}
+                        {transactionDataFromDb?.executionResources[3] &&
+                          transactionDataFromDb?.executionResources[3]!}{" "}
                         EC_OP_BUILTIN
                       </div>
                     </div>
@@ -667,45 +598,35 @@ const Page: NextPage<PageProps> = ({ params }) => {
                   </div>
                 </div>
 
-                {transactionDataFromDb?.result?.developerInfo
-                  ?.signatures[0] && (
+                {transactionDataFromDb?.signatures[0] && (
                   <div className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full">
                     <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5">
                       <Icons.InfoIcon tooltipValue="Signature(s) of the transaction" />
                       SIGNATURE(S):
                     </div>
                     <div className="flex-1 flex items-center gap-1 md:gap-0 justify-between py-2 border-b border-b-[#383838] text-sm text-[#F5AB35] break-all hover:bg-[#383838] px-2">
-                      {
-                        transactionDataFromDb?.result?.developerInfo
-                          ?.signatures[0]
-                      }
+                      {transactionDataFromDb?.signatures[0]}
                       <CopyIcon
-                        copyValue={
-                          transactionDataFromDb?.result?.developerInfo
-                            ?.signatures[0]
-                        }
+                        copyValue={transactionDataFromDb?.signatures[0]}
                       />
                     </div>
                   </div>
                 )}
 
-                {transactionDataFromDb?.result?.developerInfo?.signatures &&
-                  transactionDataFromDb?.result?.developerInfo?.signatures
-                    .length > 1 &&
-                  transactionDataFromDb?.result?.developerInfo?.signatures
-                    .slice(1)
-                    .map((sign, i) => (
-                      <div
-                        key={i}
-                        className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full"
-                      >
-                        <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5" />
-                        <div className="flex-1 flex items-center gap-1 md:gap-0 justify-between py-2 border-b border-b-[#383838] text-sm text-[#F5AB35] break-all hover:bg-[#383838] px-2">
-                          {sign}
-                          <CopyIcon copyValue={sign} />
-                        </div>
+                {transactionDataFromDb?.signatures &&
+                  transactionDataFromDb?.signatures.length > 1 &&
+                  transactionDataFromDb?.signatures.slice(1).map((sign, i) => (
+                    <div
+                      key={i}
+                      className="flex md:items-center gap-2 flex-col md:flex-row md:h-[37px] w-full"
+                    >
+                      <div className="flex items-center gap-2 w-full sm:w-1/3 md:w-1/4 lg:w-1/5" />
+                      <div className="flex-1 flex items-center gap-1 md:gap-0 justify-between py-2 border-b border-b-[#383838] text-sm text-[#F5AB35] break-all hover:bg-[#383838] px-2">
+                        {sign}
+                        <CopyIcon copyValue={sign} />
                       </div>
-                    ))}
+                    </div>
+                  ))}
               </div>
             </div>
           </TabsContent>

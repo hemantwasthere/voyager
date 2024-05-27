@@ -1,10 +1,9 @@
-import { Transaction } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
-import { DEMO_DATA } from "@/constants";
 import { timeSince } from "@/lib/utils";
 import { fetchAllTransactions } from "@/server-actions";
 import LoadingSkeleton from "../LoadingSkeleton";
@@ -40,18 +39,18 @@ const Client: React.FC = () => {
 
   if (isError) return <div>Something went wrong</div>;
 
-  if (!allTransactions) return null;
+  if (!(allTransactions.pages.length > 0)) return null;
 
   const transactions: TransactionColumn[][] = allTransactions?.pages?.map(
     (page) => {
-      return page.transactions.map((txn: Transaction) => ({
+      return page.transactions.map((txn: Prisma.TransactionCreateInput) => ({
         id: txn.txHash!,
-        status: DEMO_DATA.status!,
+        status: "ACCEPTED_ON_L2",
         hash: txn.txHash!,
         type: txn.txType!,
-        block: txn.transactionDetails?.blockNumber!,
-        version: txn.developerInfo?.version!,
-        createdAt: timeSince(Number(txn.transactionDetails?.timestamp)),
+        block: txn.blockNumber!,
+        version: txn.version!,
+        createdAt: timeSince(Number(txn?.timestamp)),
       }));
     }
   )!;
@@ -80,7 +79,7 @@ const Client: React.FC = () => {
         )}
       </div>
 
-      {!hasNextPage && (
+      {!hasNextPage && transactions.length > 0 && !isFilterApplied && (
         <div className="mt-3 w-full flex items-center justify-center gap-3 text-sm">
           No more transactions to load.
         </div>

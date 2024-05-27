@@ -1,6 +1,6 @@
 "use client";
 
-import { Block } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
@@ -20,78 +20,55 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     queryFn: () => getAllBlockTransactions(latestBlockNumber),
     retry: true,
     retryDelay: 3000,
-    refetchInterval: 5000,
   });
 
-  const inputData: Block = {
+  const blockData: Prisma.BlockCreateInput = {
     blockHash: data?.block_hash,
     blockNumber: data?.block_number,
     l1DaMode: data?.l1_da_mode,
-    l1DataGasPrice: {
-      priceInFri: data?.l1_data_gas_price?.price_in_fri,
-      priceInWei: data?.l1_data_gas_price?.price_in_wei,
-    },
-    l1GasPrice: {
-      priceInFri: data?.l1_gas_price?.price_in_fri,
-      priceInWei: data?.l1_gas_price?.price_in_wei,
-    },
+    l1DataGasPriceInFri: data?.l1_data_gas_price?.price_in_fri,
+    l1DataGasPriceInWei: data?.l1_data_gas_price?.price_in_wei,
+    l1GasPriceInFri: data?.l1_gas_price?.price_in_fri,
+    l1GasPriceInWei: data?.l1_gas_price?.price_in_wei,
     newRoot: data?.new_root,
     parentHash: data?.parent_hash,
     sequencerAddress: data?.sequencer_address,
     starknetVersion: data?.starknet_version,
     status: data?.status,
-    allTransactions: data?.transactions.map((txn: any) => ({
-      calldata: txn?.calldata,
-      feeDataAvailabilityMode: txn?.fee_data_availability_mode,
-      nonce: txn?.nonce,
-      nonceDataAvailabilityMode: txn?.nonce_data_availability_mode,
-      resourceBounds: {
-        l1Gas: {
-          maxAmount: txn?.resource_bounds?.l1_gas?.max_amount,
-          maxPricePerUnit: txn?.resource_bounds?.l1_gas?.max_price_per_unit,
-        },
-        l2Gas: {
-          maxAmount: txn?.resource_bounds?.l2_gas?.max_amount,
-          maxPricePerUnit: txn?.resource_bounds?.l2_gas?.max_price_per_unit,
-        },
-        senderAddress: txn?.sender_address ?? "0xv1",
-      },
-      signatures: txn?.signature,
-      tip: txn?.tip,
-      txHash: txn?.transaction_hash,
-      txType: txn?.type === "DEPLOY" ? "_DEPLOY" : txn?.type,
-      transactionDetails: {
-        blockNumber: data?.block_number,
-        timestamp: data?.timestamp,
-        actualFee: txn?.actual_fee ?? "0",
-        maxFee: txn?.max_fee ?? "0",
-        gasConsumed: txn?.gas_consumed ?? "0",
-        senderAddress: txn?.sender_address ?? "0xv1",
-      },
-      developerInfo: {
-        unixTimestamp: data?.timestamp,
-        nonce: txn?.nonce ?? "nonce",
-        position: txn?.position ?? 0,
-        version: txn?.version ?? "1",
-        executionResources: txn?.execution_resources ?? [],
-        calldata: txn?.calldata,
-        signatures: txn?.signature ?? [],
-      },
-      events: [
-        {
-          ID: txn?.events?.id ?? "1234_0_1",
-          block: txn?.events?.block ?? 0,
-          age: txn?.events?.age ?? 0,
-        },
-      ],
-    })),
     timestamp: data?.timestamp,
   };
+
+  const transactionsData: Prisma.TransactionCreateInput[] =
+    data?.transactions.map(
+      (txn: any, i: number) =>
+        ({
+          calldata: txn?.calldata,
+          feeDataAvailabilityMode: txn?.fee_data_availability_mode,
+          nonce: txn?.nonce,
+          nonceDataAvailabilityMode: txn?.nonce_data_availability_mode,
+          l1GasMaxAmount: txn?.resource_bounds?.l1_gas?.max_amount,
+          l1GasMaxPricePerUnit:
+            txn?.resource_bounds?.l1_gas?.max_price_per_unit,
+          l2GasMaxAmount: txn?.resource_bounds?.l2_gas?.max_amount,
+          l2GasMaxPricePerUnit:
+            txn?.resource_bounds?.l2_gas?.max_price_per_unit,
+          senderAddress: txn?.sender_address,
+          signatures: txn?.signatures,
+          tip: txn?.tip,
+          txHash: txn?.transaction_hash,
+          txType: txn?.type === "DEPLOY" ? "_DEPLOY" : txn?.type,
+          version: txn?.version,
+          blockNumber: data?.block_number,
+          timestamp: data?.timestamp,
+          unixTimestamp: data?.timestamp,
+          position: i + 1,
+        } as Prisma.TransactionCreateInput)
+    );
 
   const { mutate } = useMutation({
     mutationKey: ["add-block"],
     mutationFn: async () => {
-      await addBlock(inputData);
+      blockData && (await addBlock(blockData, transactionsData));
     },
     retry: true,
     retryDelay: 3000,
