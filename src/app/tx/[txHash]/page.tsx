@@ -38,17 +38,22 @@ const Page: NextPage<PageProps> = ({ params }) => {
     },
   });
 
+  console.log(data);
+
   const {
     data: transactionDataFromDb,
     isPending: isPending2,
     isError: isError2,
+    failureReason,
   } = useQuery({
     queryKey: ["get-transaction-data-from-hash"],
     queryFn: async () => {
       if (!params.txHash) return;
-      return await getTransactionDataFromHash(params.txHash);
+      return await getTransactionDataFromHash(params.txHash, data?.result);
     },
   });
+
+  console.log(failureReason);
 
   const { data: ethPrice } = useQuery({
     queryKey: ["get-eth-price"],
@@ -73,20 +78,6 @@ const Page: NextPage<PageProps> = ({ params }) => {
   //   })
   // );
 
-  if (transactionDataFromDb.executionResources) {
-    transactionDataFromDb.executionResources[0] =
-      data?.result?.execution_resources?.steps;
-
-    transactionDataFromDb.executionResources[1] =
-      data?.result?.execution_resources?.pedersen_builtin_applications;
-
-    transactionDataFromDb.executionResources[2] =
-      data?.result?.execution_resources?.range_check_builtin_applications;
-
-    transactionDataFromDb.executionResources[3] =
-      data?.result?.execution_resources?.ec_op_builtin_applications;
-  }
-
   const formattedEventData: EventsColumn[] = data?.result?.events?.map(
     (event: any, index: any) => ({
       id: `${transactionDataFromDb?.blockNumber}_${
@@ -96,6 +87,8 @@ const Page: NextPage<PageProps> = ({ params }) => {
       createdAt: timeSince(transactionDataFromDb?.timestamp!),
     })
   );
+
+  console.log(transactionDataFromDb);
 
   // const formattedEventData: EventsColumn[] = [
   //   {
@@ -293,13 +286,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
                       </Link>
                     </CustomTooltip>
                     <CopyIcon copyValue="0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7" />
-                    {!ethPrice?.price
-                      ? "..."
-                      : `($${(
-                          ethPrice?.price *
-                          (Number(transactionDataFromDb?.maxFee) /
-                            Number(1000000000000000000))
-                        ).toFixed(6)})`}
+                    {transactionDataFromDb?.maxFee}
                   </div>
                 </div>
 
@@ -309,10 +296,6 @@ const Page: NextPage<PageProps> = ({ params }) => {
                     GAS CONSUMED:
                   </div>
                   <div className="flex-1 items-center py-2 border-b border-b-[#383838] text-sm">
-                    {/* {
-                      data?.result?.execution_resources?.data_availability
-                        ?.l1_data_gas
-                    } */}
                     {transactionDataFromDb?.gasConsumed}
                   </div>
                 </div>
@@ -397,19 +380,24 @@ const Page: NextPage<PageProps> = ({ params }) => {
                   </div>
                   <div className="flex-1 items-center py-1 border-b border-b-[#383838] text-sm">
                     <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#2E4C3C] bg-[#202E26] text-[#83F3BB] rounded-sm w-fit">
-                      {transactionDataFromDb?.executionResources[0]} STEPS
+                      {transactionDataFromDb?.executionResources[0] &&
+                        transactionDataFromDb?.executionResources[0]!}{" "}
+                      STEPS
                     </div>
                     <div className="flex items-center flex-wrap gap-3 mt-1">
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {transactionDataFromDb?.executionResources[1]}{" "}
+                        {transactionDataFromDb?.executionResources[1] &&
+                          transactionDataFromDb?.executionResources[1]!}{" "}
                         PEDERSEN_BUILTIN{" "}
                       </div>
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {transactionDataFromDb?.executionResources[2]}{" "}
+                        {transactionDataFromDb?.executionResources[2] &&
+                          transactionDataFromDb?.executionResources[2]!}{" "}
                         RANGE_CHECK_BUILTIN
                       </div>
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {transactionDataFromDb?.executionResources[3]}{" "}
+                        {transactionDataFromDb?.executionResources[3] &&
+                          transactionDataFromDb?.executionResources[3]!}{" "}
                         EC_OP_BUILTIN
                       </div>
                     </div>

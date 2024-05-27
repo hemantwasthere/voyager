@@ -4,18 +4,13 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
-import { DEMO_DATA } from "@/constants";
 import { timeSince } from "@/lib/utils";
 import { fetchAllTransactions } from "@/server-actions";
 import LoadingSkeleton from "../LoadingSkeleton";
 import { DataTable } from "../ui/data-table";
 import { TransactionColumn, columns } from "./columns";
 
-interface ClientProps {
-  blockNumber: number;
-}
-
-const Client: React.FC<ClientProps> = ({ blockNumber }) => {
+const Client: React.FC = () => {
   const [isFilterApplied, setIsFilterApplied] = useState(false);
 
   const { ref, inView } = useInView();
@@ -29,8 +24,7 @@ const Client: React.FC<ClientProps> = ({ blockNumber }) => {
     hasNextPage,
   } = useInfiniteQuery({
     queryKey: ["get-transactions-from-db"],
-    queryFn: ({ pageParam }) =>
-      fetchAllTransactions(blockNumber, pageParam as number),
+    queryFn: ({ pageParam }) => fetchAllTransactions(pageParam as number),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextPage,
     retry: true,
@@ -45,13 +39,13 @@ const Client: React.FC<ClientProps> = ({ blockNumber }) => {
 
   if (isError) return <div>Something went wrong</div>;
 
-  if (!allTransactions) return null;
+  if (!(allTransactions.pages.length > 0)) return null;
 
   const transactions: TransactionColumn[][] = allTransactions?.pages?.map(
     (page) => {
       return page.transactions.map((txn: Prisma.TransactionCreateInput) => ({
         id: txn.txHash!,
-        status: DEMO_DATA.status!,
+        status: "ACCEPTED_ON_L2",
         hash: txn.txHash!,
         type: txn.txType!,
         block: txn.blockNumber!,
@@ -85,7 +79,7 @@ const Client: React.FC<ClientProps> = ({ blockNumber }) => {
         )}
       </div>
 
-      {!hasNextPage && (
+      {!hasNextPage && transactions.length > 0 && !isFilterApplied && (
         <div className="mt-3 w-full flex items-center justify-center gap-3 text-sm">
           No more transactions to load.
         </div>

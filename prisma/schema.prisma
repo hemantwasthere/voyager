@@ -56,7 +56,7 @@ model Transaction {
   calldata                  String[]
   signatures                String[]
   events                    Event[]
-  Block                     Block?   @relation(fields: [blockId], references: [id])
+  Block                     Block?   @relation(fields: [blockId], references: [id], onDelete: Cascade)
   blockId                   String?
 }
 
@@ -65,5 +65,5 @@ model Event {
   ID          String?
   block       Int?
   age         Int?
-  Transaction Transaction @relation(fields: [id], references: [id])
+  Transaction Transaction @relation(fields: [id], references: [id], onDelete: Cascade)
 }

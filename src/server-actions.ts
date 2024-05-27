@@ -5,7 +5,10 @@ import { Prisma } from "@prisma/client";
 import { db } from "@/db";
 import { PAGE_LIMIT } from "./constants";
 
-export const addBlock = async (blockData: Prisma.BlockCreateInput) => {
+export const addBlock = async (
+  blockData: Prisma.BlockCreateInput,
+  transactionData: Prisma.TransactionCreateInput[]
+) => {
   const existingBlock = await db.block.findUnique({
     where: {
       blockNumber: blockData.blockNumber!,
@@ -19,20 +22,18 @@ export const addBlock = async (blockData: Prisma.BlockCreateInput) => {
   await db.block.create({
     data: blockData,
   });
+
+  await db.transaction.createMany({
+    data: transactionData,
+  });
 };
 
-export async function fetchAllTransactions(
-  blockNumber: number,
-  pageParam: number
-): Promise<{
+export async function fetchAllTransactions(pageParam: number): Promise<{
   transactions: any;
   currentPage: number;
   nextPage: number | null;
 }> {
   const transactions = await db.transaction.findMany({
-    where: {
-      blockNumber: blockNumber,
-    },
     orderBy: {
       timestamp: "desc",
     },
@@ -53,7 +54,7 @@ export async function fetchAllTransactions(
   });
 }
 
-export const getTransactionDataFromHash = async (txHash: string) => {
+export const getTransactionDataFromHash = async (txHash: string, data: any) => {
   const transactions = await db.transaction.findUnique({
     where: {
       txHash: txHash,
@@ -61,6 +62,23 @@ export const getTransactionDataFromHash = async (txHash: string) => {
   });
 
   if (!transactions) return null;
+
+  await db.transaction.update({
+    where: {
+      txHash: txHash,
+    },
+    data: {
+      actualFee: data?.actual_fee.amount,
+      executionResources: [
+        `${data?.execution_resources?.steps}` ?? "",
+        `${data?.execution_resources?.pedersen_builtin_applications}` ?? "",
+        `${data?.execution_resources?.range_check_builtin_applications}` ?? "",
+        `${data?.execution_resources?.ec_op_builtin_applications}` ?? "",
+      ],
+      maxFee: "-",
+      gasConsumed: "-",
+    },
+  });
 
   return transactions;
 };

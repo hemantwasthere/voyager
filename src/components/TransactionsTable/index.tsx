@@ -36,8 +36,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     starknetVersion: data?.starknet_version,
     status: data?.status,
     timestamp: data?.timestamp,
-    transactions: data?.transactions.map(
-      (txn: any) =>
+  };
+
+  const transactionsData: Prisma.TransactionCreateInput[] =
+    data?.transactions.map(
+      (txn: any, i: number) =>
         ({
           calldata: txn?.calldata,
           feeDataAvailabilityMode: txn?.fee_data_availability_mode,
@@ -52,20 +55,20 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
           senderAddress: txn?.sender_address,
           signatures: txn?.signatures,
           tip: txn?.tip,
-          txHash: txn?.tx_hash,
+          txHash: txn?.transaction_hash,
           txType: txn?.type === "DEPLOY" ? "_DEPLOY" : txn?.type,
           version: txn?.version,
           blockNumber: data?.block_number,
           timestamp: data?.timestamp,
           unixTimestamp: data?.timestamp,
+          position: i + 1,
         } as Prisma.TransactionCreateInput)
-    ),
-  };
+    );
 
   const { mutate } = useMutation({
     mutationKey: ["add-block"],
     mutationFn: async () => {
-      blockData && (await addBlock(blockData));
+      blockData && (await addBlock(blockData, transactionsData));
     },
     retry: true,
     retryDelay: 3000,
@@ -78,7 +81,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     }
   }, [latestBlockNumber, data, mutate]);
 
-  return <Client blockNumber={latestBlockNumber} />;
+  return <Client />;
 };
 
 export default TransactionsTable;
