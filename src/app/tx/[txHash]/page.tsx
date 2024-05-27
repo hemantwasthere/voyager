@@ -13,6 +13,7 @@ import { EventsColumn } from "@/components/EventsTable/columns";
 import { Icons } from "@/components/Icons";
 import TxPageLoadingSkeleton from "@/components/TxPageLoadingSkeleton";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getEthPrice } from "@/hooks/getEthPrice";
 import { getTransactionReceipt } from "@/hooks/getTransactionData";
@@ -380,25 +381,41 @@ const Page: NextPage<PageProps> = ({ params }) => {
                   </div>
                   <div className="flex-1 items-center py-1 border-b border-b-[#383838] text-sm">
                     <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#2E4C3C] bg-[#202E26] text-[#83F3BB] rounded-sm w-fit">
-                      {transactionDataFromDb?.executionResources[0] &&
-                        transactionDataFromDb?.executionResources[0]!}{" "}
-                      STEPS
+                      {transactionDataFromDb?.executionResources[0] ? (
+                        transactionDataFromDb?.executionResources[0] +
+                        " " +
+                        "STEPS"
+                      ) : (
+                        <Skeleton className="bg-[#5E5E5E] w-3 h-3 rounded-full" />
+                      )}
                     </div>
                     <div className="flex items-center flex-wrap gap-3 mt-1">
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {transactionDataFromDb?.executionResources[1] &&
-                          transactionDataFromDb?.executionResources[1]!}{" "}
-                        PEDERSEN_BUILTIN{" "}
+                        {transactionDataFromDb?.executionResources[1] ? (
+                          transactionDataFromDb?.executionResources[1] +
+                          " " +
+                          "PEDERSEN_BUILTIN"
+                        ) : (
+                          <Skeleton className="bg-[#5E5E5E] w-3 h-3 rounded-full" />
+                        )}
                       </div>
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {transactionDataFromDb?.executionResources[2] &&
-                          transactionDataFromDb?.executionResources[2]!}{" "}
-                        RANGE_CHECK_BUILTIN
+                        {transactionDataFromDb?.executionResources[2] ? (
+                          transactionDataFromDb?.executionResources[2] +
+                          " " +
+                          "RANGE_CHECK_BUILTIN"
+                        ) : (
+                          <Skeleton className="bg-[#5E5E5E] w-3 h-3 rounded-full" />
+                        )}
                       </div>
                       <div className="flex items-center text-[12px] font-[300] px-[10px] border border-[#583F2A] bg-[#3A2A1C] text-[#FEC898] rounded-sm w-fit">
-                        {transactionDataFromDb?.executionResources[3] &&
-                          transactionDataFromDb?.executionResources[3]!}{" "}
-                        EC_OP_BUILTIN
+                        {transactionDataFromDb?.executionResources[3] ? (
+                          transactionDataFromDb?.executionResources[3] +
+                          " " +
+                          "EC_OP_BUILTIN"
+                        ) : (
+                          <Skeleton className="bg-[#5E5E5E] w-3 h-3 rounded-full" />
+                        )}
                       </div>
                     </div>
                   </div>
