@@ -37,30 +37,33 @@ const Page: NextPage<PageProps> = ({ params }) => {
       if (!params.txHash) return;
       return await getTransactionReceipt([params.txHash]);
     },
+    retry: true,
+    retryDelay: 2000,
   });
-
-  console.log(data);
 
   const {
     data: transactionDataFromDb,
     isPending: isPending2,
     isError: isError2,
-    failureReason,
   } = useQuery({
     queryKey: ["get-transaction-data-from-hash"],
     queryFn: async () => {
       if (!params.txHash) return;
       return await getTransactionDataFromHash(params.txHash, data?.result);
     },
+    retry: true,
+    retryDelay: 2000,
   });
-
-  console.log(failureReason);
 
   const { data: ethPrice } = useQuery({
     queryKey: ["get-eth-price"],
     queryFn: async () => {
       return await getEthPrice();
     },
+    retry: true,
+    retryDelay: 2000,
+    refetchInterval: 1000,
+    refetchIntervalInBackground: true,
   });
 
   if (isPending || isPending2) return <TxPageLoadingSkeleton />;
@@ -71,14 +74,6 @@ const Page: NextPage<PageProps> = ({ params }) => {
 
   if (!transactionDataFromDb) return null;
 
-  // transactionDataFromDb.events = data?.result?.events?.map(
-  //   (event: any) => ({
-  //     id: event?.id ?? "id",
-  //     block: transactionDataFromDb?.result?.transactionDetails?.blockNumber,
-  //     createdAt: event?.timestamp ?? "timestamp",
-  //   })
-  // );
-
   const formattedEventData: EventsColumn[] = data?.result?.events?.map(
     (event: any, index: any) => ({
       id: `${transactionDataFromDb?.blockNumber}_${
@@ -88,31 +83,6 @@ const Page: NextPage<PageProps> = ({ params }) => {
       createdAt: timeSince(transactionDataFromDb?.timestamp!),
     })
   );
-
-  console.log(transactionDataFromDb);
-
-  // const formattedEventData: EventsColumn[] = [
-  //   {
-  //     id: "622371_21_3",
-  //     block: 622371,
-  //     createdAt: timeSince(1637069048),
-  //   },
-  //   {
-  //     id: "622371_21_2",
-  //     block: 622371,
-  //     createdAt: timeSince(1637069048),
-  //   },
-  //   {
-  //     id: "622371_21_1",
-  //     block: 622371,
-  //     createdAt: timeSince(1637069048),
-  //   },
-  //   {
-  //     id: "622371_21_0",
-  //     block: 622371,
-  //     createdAt: timeSince(1637069048),
-  //   },
-  // ];
 
   return (
     <>

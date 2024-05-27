@@ -20,6 +20,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     queryFn: () => getAllBlockTransactions(latestBlockNumber),
     retry: true,
     retryDelay: 3000,
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
   });
 
   const blockData: Prisma.BlockCreateInput = {
@@ -77,7 +79,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   useEffect(() => {
     if (data) {
       mutate();
-      console.log("render");
     }
   }, [latestBlockNumber, data, mutate]);
 

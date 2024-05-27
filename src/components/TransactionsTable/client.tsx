@@ -29,6 +29,8 @@ const Client: React.FC = () => {
     getNextPageParam: (lastPage) => lastPage.nextPage,
     retry: true,
     retryDelay: 5000,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 
   useEffect(() => {
@@ -79,7 +81,7 @@ const Client: React.FC = () => {
         )}
       </div>
 
-      {!hasNextPage && transactions.length > 0 && !isFilterApplied && (
+      {!hasNextPage && allTransactions.pages.length > 0 && !isFilterApplied && (
         <div className="mt-3 w-full flex items-center justify-center gap-3 text-sm">
           No more transactions to load.
         </div>

@@ -13,7 +13,8 @@ const Home: NextPage = () => {
     queryFn: getLatestBlockNumber,
     retry: true,
     retryDelay: 3000,
-    refetchInterval: 4000,
+    refetchInterval: 2500,
+    refetchIntervalInBackground: true,
   });
 
   if (isPending) return <LoadingSkeleton />;
